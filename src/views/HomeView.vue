@@ -26,7 +26,7 @@
             {{ locale === 'zh' ? '开始使用' : 'Get Started' }}
             <ArrowDown class="ml-2 h-4 w-4" />
           </a>
-          <a href="https://github.com/yourusername/996-tools" target="_blank" class="w-full sm:w-auto inline-flex h-12 items-center justify-center rounded-md border border-input bg-background px-8 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+          <a :href="siteConfig.links.github" target="_blank" class="w-full sm:w-auto inline-flex h-12 items-center justify-center rounded-md border border-input bg-background px-8 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
             <Github class="mr-2 h-4 w-4" />
             GitHub
           </a>
@@ -153,6 +153,7 @@ import { computed, ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ArrowDown, Github, Zap, Shield, Code2, ArrowRight } from 'lucide-vue-next'
 import { toolsData } from '@/lib/tools-data'
+import { siteConfig } from '@/config/site'
 import ToolCard from '@/components/ToolCard.vue'
 import SearchCommand from '@/components/SearchCommand.vue' // Import SearchCommand to use its method
 

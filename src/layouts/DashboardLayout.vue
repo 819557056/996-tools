@@ -71,16 +71,18 @@
           </div>
           
           <div class="flex items-center gap-4">
-            <a
-              href="https://github.com"
-              target="_blank"
-              class="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              About
-            </a>
-            
-            <!-- 语言选择器 -->
+            <!-- 语言选择器放到最前面 -->
             <LocaleSelector />
+
+            <!-- GitHub 链接 -->
+            <a
+              :href="siteConfig.links.github"
+              target="_blank"
+              class="inline-flex items-center justify-center rounded-md p-2 hover:bg-accent hover:text-accent-foreground transition-colors"
+              title="GitHub"
+            >
+              <Github class="h-5 w-5" />
+            </a>
             
             <!-- 工具收藏按钮 -->
             <button
@@ -103,10 +105,15 @@
               <Moon v-else class="h-5 w-5" />
             </button>
             
-            <button class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-3">
+            <!-- Request a Tool 跳转到 issue -->
+            <a
+              :href="siteConfig.issue"
+              target="_blank"
+              class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-3"
+            >
               <Gift class="h-4 w-4 mr-2" />
               Request a Tool
-            </button>
+            </a>
           </div>
         </div>
       </header>
@@ -124,7 +131,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
-import { Menu, Gift, Sun, Moon, Search, PanelLeftClose, PanelLeft, Star } from 'lucide-vue-next'
+import { Menu, Gift, Sun, Moon, Search, PanelLeftClose, PanelLeft, Star, Github } from 'lucide-vue-next'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import AppSidebar from '@/components/AppSidebar.vue'
@@ -133,6 +140,7 @@ import SearchCommand from '@/components/SearchCommand.vue'
 import { useThemeStore } from '@/stores/theme'
 import { useFavoritesStore } from '@/stores/favorites'
 import { getToolByPath } from '@/lib/tools-data'
+import { siteConfig } from '@/config/site'
 
 const { t } = useI18n()
 const route = useRoute()
