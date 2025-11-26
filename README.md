@@ -1,4 +1,4 @@
-# MyTools - Vue 3 在线工具集合
+# 996 Tools - Vue 3 在线工具集合
 
 这是一个使用 Vue 3 + TypeScript 重构的在线工具集合，原项目基于 [101webtools](https://github.com/mnove/101webtools)。
 
@@ -49,7 +49,7 @@
 ```bash
 # 克隆仓库
 git clone <repository-url>
-cd MyTools
+cd 996-Tools
 
 # 安装依赖 (推荐使用 pnpm)
 pnpm install
@@ -107,7 +107,7 @@ npm run preview
 ## 项目结构
 
 ```
-MyTools/
+996-Tools/
 ├── public/                 # 静态资源
 ├── src/
 │   ├── assets/            # 资源文件

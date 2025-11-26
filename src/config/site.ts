@@ -18,7 +18,7 @@ export const siteConfig = {
     "加密解密"
   ],
   links: {
-    github: "https://github.com/yourusername/996-tools",
+    github: "https://github.com/819557056/996-tools",
   },
 }
 

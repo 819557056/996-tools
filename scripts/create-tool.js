@@ -419,7 +419,7 @@ async function selectCategory() {
 async function main() {
   console.log(`
 ${colors.bright}╔════════════════════════════════════════╗
-║      MyTools 工具创建向导              ║
+║      996-Tools 工具创建向导           ║
 ╚════════════════════════════════════════╝${colors.reset}
 `)
 
