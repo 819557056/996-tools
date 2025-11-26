@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  mytools:
+    build: .
+    image: mytools:latest
+    container_name: mytools
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+
