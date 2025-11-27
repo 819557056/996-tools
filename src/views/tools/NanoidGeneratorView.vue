@@ -40,7 +40,7 @@
         <div v-if="alphabetType === 'custom'" class="space-y-2">
           <BaseLabel>自定义字符集</BaseLabel>
           <BaseInput
-            v-model="customAlphabet"
+            v-model="customAlphabetInput"
             placeholder="输入自定义字符集"
           />
           <p class="text-xs text-muted-foreground">
@@ -130,7 +130,7 @@ const alphabetType = ref('default')
 const customAlphabet_input = ref('')
 const generatedIds = ref<string[]>([])
 
-const customAlphabet = computed({
+const customAlphabetInput = computed({
   get: () => customAlphabet_input.value,
   set: (val) => customAlphabet_input.value = val
 })
@@ -143,7 +143,7 @@ const currentAlphabet = computed(() => {
     uppercase: uppercase,
     alphanumeric: uppercase + lowercase + numbers,
     hex: '0123456789abcdef',
-    custom: customAlphabet.value || 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-',
+    custom: customAlphabetInput.value || 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-',
   }
   return alphabets[alphabetType.value] || alphabets.default
 })
