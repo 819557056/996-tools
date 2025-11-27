@@ -80,8 +80,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
+import { computed, defineAsyncComponent } from 'vue'
 import { 
   RefreshCw, 
   Minimize2, 
@@ -114,6 +113,9 @@ const {
   loadExample,
   clear
 } = useJsonFormatter()
+
+// 异步加载 Monaco 编辑器，避免在其他页面或首屏时提前加载较大的编辑器代码
+const VueMonacoEditor = defineAsyncComponent(() => import('@guolao/vue-monaco-editor').then(m => m.VueMonacoEditor))
 
 const themeStore = useThemeStore()
 const { actualTheme } = storeToRefs(themeStore)

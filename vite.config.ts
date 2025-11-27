@@ -36,6 +36,18 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
+  build: {
+    rollupOptions: {
+      output: {
+        // 将体积较大的第三方库拆分到独立 chunk，避免普通工具页面加载 PKI/编辑器等重依赖
+        manualChunks: {
+          monaco: ['monaco-editor', '@guolao/vue-monaco-editor'],
+          pki: ['node-forge'],
+          qrcode: ['qr-code-styling'],
+        },
+      },
+    },
+  },
   server: {
     port: 3000,
     open: true
