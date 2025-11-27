@@ -37,6 +37,22 @@ export default defineConfig({
     }
   },
   build: {
+    // 这个选项就是控制 Minification 的开关
+    // 'terser' 是默认值，表示使用 Terser 进行压缩
+    // 'esbuild' 是另一个选项，压缩速度更快，但压缩率略低于 Terser
+    // false 则可以完全禁用压缩，通常只在调试生产环境构建问题时使用
+    minify: 'terser',
+    // 当 minify: 'terser' 时，可以通过这个选项来配置 Terser 的行为
+    terserOptions: {
+      compress: {
+        // 生产环境中移除 console.log 输出
+        drop_console: true,
+        // 生产环境中移除 debugger
+        drop_debugger: true,
+      },
+      // 可以进一步配置其他选项，例如 mangle (混淆变量名) 等
+      // mangle: { ... }
+    },
     rollupOptions: {
       output: {
         // 将体积较大的第三方库拆分到独立 chunk，避免普通工具页面加载 PKI/编辑器等重依赖
