@@ -129,48 +129,57 @@ export function parseCertificate(input: string): CertificateInfo {
 }
 
 // 从文件解析证书
+// 兼容：PEM / Base64 / HEX 文本证书，以及二进制 DER 证书（无论后缀是 .der 还是 .cer/.crt 等）
 export async function parseCertificateFromFile(file: File): Promise<CertificateInfo> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
+  try {
+    // 优先按文本读取，便于处理 PEM / Base64 / HEX / 文本 DER（极少见）
+    const text = await file.text();
 
-    reader.onload = (e) => {
-      try {
-        const result = e.target?.result;
-        if (!result) {
-          reject(new Error('文件读取失败'));
-          return;
-        }
-
-        if (typeof result === 'string') {
-          // 文本文件（PEM 或 Base64）
-          const certInfo = parseCertificate(result);
-          resolve(certInfo);
-        } else {
-          // 二进制文件（DER）
-          const bytes = new Uint8Array(result);
-          const binary = String.fromCharCode(...bytes);
-          const base64 = btoa(binary);
-          const certInfo = parseCertificate(base64);
-          resolve(certInfo);
-        }
-      } catch (error: any) {
-        reject(new Error(`证书文件解析失败: ${error.message}`));
-      }
-    };
-
-    reader.onerror = () => {
-      reject(new Error('文件读取失败'));
-    };
-
-    // 尝试作为文本读取
-    const fileName = file.name.toLowerCase();
-    if (fileName.endsWith('.pem') || fileName.endsWith('.crt') || fileName.endsWith('.cer')) {
-      reader.readAsText(file);
-    } else {
-      // 尝试作为二进制读取
-      reader.readAsArrayBuffer(file);
+    // 如果内容看起来像二进制（包含较多不可打印字符），则按二进制 DER 处理
+    if (isBinaryContent(text)) {
+      const arrayBuffer = await file.arrayBuffer();
+      const base64 = arrayBufferToBase64(arrayBuffer);
+      return parseCertificate(base64);
     }
-  });
+
+    // 否则当作普通文本输入，交给 parseCertificate 识别 PEM / Base64 / HEX
+    return parseCertificate(text);
+  } catch (error: any) {
+    // 如果按文本读取或解析失败，再尝试纯二进制方式，作为兜底
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const base64 = arrayBufferToBase64(arrayBuffer);
+      return parseCertificate(base64);
+    } catch (binaryError: any) {
+      throw new Error(`证书文件解析失败: ${binaryError.message}`);
+    }
+  }
+}
+
+// 简单判断内容是否为“二进制”为主（参考 certificate-encoding-converter 的实现）
+function isBinaryContent(text: string): boolean {
+  if (!text) return false;
+  let nonPrintableCount = 0;
+
+  for (let i = 0; i < text.length; i++) {
+    const code = text.charCodeAt(i);
+    // 排除常见的控制字符：\t \n \r
+    if (code < 32 && code !== 9 && code !== 10 && code !== 13) {
+      nonPrintableCount++;
+    }
+  }
+
+  return nonPrintableCount > text.length * 0.1;
+}
+
+// ArrayBuffer 转 Base64（与 certificate-encoding-converter 中逻辑一致）
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
 }
 
 // 从 ASN.1 直接提取证书信息（用于国密等不被 forge 完全支持的证书）

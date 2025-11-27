@@ -7,7 +7,11 @@
       <!-- Logo & Search -->
       <div class="border-b p-4 space-y-4">
         <RouterLink to="/" class="flex items-center gap-2" :class="collapsed ? 'justify-center' : ''">
-          <img src="@/assets/logo.png" alt="996 Logo" class="h-8 w-8 rounded-md object-contain flex-shrink-0" />
+          <div
+            class="h-8 w-8 rounded-md flex items-center justify-center bg-primary text-primary-foreground text-xs font-bold flex-shrink-0"
+          >
+            996
+          </div>
           <span v-if="!collapsed" class="font-semibold whitespace-nowrap overflow-hidden">{{ siteConfig.web }}</span>
         </RouterLink>
       </div>

@@ -13,10 +13,7 @@
           </p>
         </div>
         <div class="flex gap-2">
-          <BaseButton variant="outline" size="sm" @click="loadExample">
-            <BookOpen class="mr-2 h-4 w-4" />
-            加载示例
-          </BaseButton>
+          
           <BaseButton 
             variant="outline" 
             size="sm"
