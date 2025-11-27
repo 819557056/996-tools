@@ -11,7 +11,6 @@ export default defineConfig({
     vue(),
     VueI18n({
       runtimeOnly: true,
-      jitCompilation: true,
       compositionOnly: true,
       fullInstall: true,
       strictMessage: false,
@@ -60,6 +59,25 @@ export default defineConfig({
           monaco: ['monaco-editor', '@guolao/vue-monaco-editor'],
           pki: ['node-forge'],
           qrcode: ['qr-code-styling'],
+        },
+        // 为所有资源文件添加内容哈希，实现缓存失效策略
+        // 当文件内容改变时，哈希值改变，浏览器会请求新文件
+        chunkFileNames: 'assets/js/[name]-[hash].js',
+        entryFileNames: 'assets/js/[name]-[hash].js',
+        assetFileNames: (assetInfo) => {
+          // 根据文件类型分类存放并添加哈希
+          const info = assetInfo.name?.split('.') || []
+          const ext = info[info.length - 1]
+          if (/\.(png|jpe?g|gif|svg|webp|ico)$/i.test(assetInfo.name || '')) {
+            return 'assets/images/[name]-[hash].[ext]'
+          }
+          if (/\.(woff2?|eot|ttf|otf)$/i.test(assetInfo.name || '')) {
+            return 'assets/fonts/[name]-[hash].[ext]'
+          }
+          if (/\.css$/i.test(assetInfo.name || '')) {
+            return 'assets/css/[name]-[hash].[ext]'
+          }
+          return 'assets/[name]-[hash].[ext]'
         },
       },
     },
