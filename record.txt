@@ -1,1 +1,0 @@
-pnpm create-tool my-tool --new-category "encoding-manage" -y

@@ -2,7 +2,7 @@ export const siteConfig = {
   name: "996 Tools",
   creator: "xuechengfeng",
   url: "https://921996.xyz",
-  web: "921996.xyz",
+  web: "996工具箱",
   issue: "https://github.com/819557056/996-tools/issues",
   description:
     "拒绝996，从提高效率开始。开发者专属的免费在线工具箱，让工作更轻松，生活更美好。",
