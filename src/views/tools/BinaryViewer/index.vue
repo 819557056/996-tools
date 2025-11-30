@@ -52,7 +52,7 @@
             variant="outline"
             size="default"
             @click="handleClear"
-            :disabled="!fileInput"
+            :disabled="!hexOutput && !fileInput && !textInput"
           >
             <X class="h-4 w-4 mr-2" />
             {{ t('tools.binary-viewer.clear') }}
@@ -62,32 +62,62 @@
 
       <!-- 主显示区域：上传或输出 -->
       <div class="min-h-[400px]">
-        <!-- 上传区域（无文件时显示） -->
-        <div 
-          v-if="!hexOutput"
-          class="border-2 border-dashed rounded-lg p-12 text-center transition-colors cursor-pointer h-[400px] flex flex-col items-center justify-center"
-          :class="isDragging ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'"
-          @click="triggerFileInput"
-          @dragover.prevent="handleDragOver"
-          @dragleave.prevent="handleDragLeave"
-          @drop.prevent="handleDrop"
-        >
-          <input 
-            ref="fileInputRef"
-            type="file"
-            class="hidden"
-            @change="handleFileChange"
-          />
-          <Upload class="mx-auto h-16 w-16 text-muted-foreground mb-4" />
-          <p class="text-base text-foreground font-medium mb-2">
-            {{ t('tools.binary-viewer.uploadHint') }}
-          </p>
-          <p v-if="fileInput" class="text-sm text-primary font-medium mt-2">
-            {{ fileInput.name }} ({{ formatFileSize(fileInput.size) }})
-          </p>
-          <BaseButton v-else variant="outline" size="default" class="mt-4">
-            {{ t('tools.binary-viewer.selectFile') }}
-          </BaseButton>
+        <div v-if="!hexOutput">
+          <!-- 模式切换 -->
+          <div class="flex gap-6 text-sm mb-4">
+            <label class="flex items-center cursor-pointer">
+              <input v-model="inputMode" type="radio" value="file" class="mr-2" />
+              <span>{{ t('tools.binary-viewer.modeFile') }}</span>
+            </label>
+            <label class="flex items-center cursor-pointer">
+              <input v-model="inputMode" type="radio" value="text" class="mr-2" />
+              <span>{{ t('tools.binary-viewer.modeText') }}</span>
+            </label>
+          </div>
+
+          <!-- 文本输入 -->
+          <div v-if="inputMode === 'text'" class="space-y-4">
+            <BaseTextarea
+              v-model="textInput"
+              :placeholder="t('tools.binary-viewer.textInputPlaceholder')"
+              :rows="12"
+              class="font-mono text-xs"
+            />
+            <div class="flex justify-end">
+              <BaseButton @click="processInput" :disabled="!textInput">
+                <RefreshCw class="mr-2 h-4 w-4" />
+                {{ t('tools.binary-viewer.process') }}
+              </BaseButton>
+            </div>
+          </div>
+
+          <!-- 文件上传 -->
+          <div 
+            v-else
+            class="border-2 border-dashed rounded-lg p-12 text-center transition-colors cursor-pointer h-[400px] flex flex-col items-center justify-center"
+            :class="isDragging ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'"
+            @click="triggerFileInput"
+            @dragover.prevent="handleDragOver"
+            @dragleave.prevent="handleDragLeave"
+            @drop.prevent="handleDrop"
+          >
+            <input 
+              ref="fileInputRef"
+              type="file"
+              class="hidden"
+              @change="handleFileChange"
+            />
+            <Upload class="mx-auto h-16 w-16 text-muted-foreground mb-4" />
+            <p class="text-base text-foreground font-medium mb-2">
+              {{ t('tools.binary-viewer.uploadHint') }}
+            </p>
+            <p v-if="fileInput" class="text-sm text-primary font-medium mt-2">
+              {{ fileInput.name }} ({{ formatFileSize(fileInput.size) }})
+            </p>
+            <BaseButton v-else variant="outline" size="default" class="mt-4">
+              {{ t('tools.binary-viewer.selectFile') }}
+            </BaseButton>
+          </div>
         </div>
 
         <!-- 输出区域（有输出时显示） -->
@@ -126,20 +156,23 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Clipboard, Upload, X } from 'lucide-vue-next'
+import { Clipboard, Upload, X, FileText, RefreshCw } from 'lucide-vue-next'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseLabel from '@/components/ui/BaseLabel.vue'
+import BaseTextarea from '@/components/ui/BaseTextarea.vue'
 import { useBinaryViewer } from './useBinaryViewer'
 
 const { 
   t, 
+  inputMode,
   fileInput, 
+  textInput,
   hexOutput, 
   bytesPerLine, 
   startOffset, 
-  processFile, 
+  processInput, 
   copyToClipboard, 
   clearAll, 
   formatFileSize 
@@ -159,7 +192,7 @@ async function handleFileChange(event: Event) {
   const file = target.files?.[0]
   if (file) {
     fileInput.value = file
-    await processFile(file)
+    await processInput()
   }
 }
 
@@ -180,7 +213,7 @@ async function handleDrop(event: DragEvent) {
   const file = event.dataTransfer?.files[0]
   if (file) {
     fileInput.value = file
-    await processFile(file)
+    await processInput()
   }
 }
 

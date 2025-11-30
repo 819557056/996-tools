@@ -78,6 +78,21 @@ const router = createRouter({
           name: 'certificate-viewer',
           component: () => import('../views/tools/CertificateViewer/index.vue'),
         },
+        {
+          path: '/tools/sm2-tool',
+          name: 'sm2-tool',
+          component: () => import('../views/tools/Sm2Tool/index.vue'),
+        },
+        {
+          path: '/tools/sm4-tool',
+          name: 'sm4-tool',
+          component: () => import('../views/tools/Sm4Tool/index.vue'),
+        },
+        {
+          path: '/tools/digital-envelope',
+          name: 'digital-envelope',
+          component: () => import('../views/tools/DigitalEnvelope/index.vue'),
+        },
       ],
     },
   ],

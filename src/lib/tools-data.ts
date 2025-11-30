@@ -54,6 +54,39 @@ export const toolsData: ToolsData = {
     icon: "Hash",
     isNew: true,
   },
+  sm2tool: {
+    key: "sm2tool",
+    label: "SM2 工具",
+    i18nKey: "tools.sm2tool",
+    description: "SM2 加密/解密/签名/验签",
+    badges: ["SM2", "加密"],
+    category: "Encryption_Tools",
+    path: "/tools/sm2-tool",
+    icon: "Lock",
+    isNew: true,
+  },
+  sm4tool: {
+    key: "sm4tool",
+    label: "SM4 工具",
+    i18nKey: "tools.sm4tool",
+    description: "SM4 分组密码算法，支持 ECB 和 CBC 模式",
+    badges: ["SM4", "加密"],
+    category: "Encryption_Tools",
+    path: "/tools/sm4-tool",
+    icon: "Lock",
+    isNew: true,
+  },
+  digitalEnvelope: {
+    key: "digitalEnvelope",
+    label: "数字信封",
+    i18nKey: "tools.digitalEnvelope",
+    description: "基于GM/T 0010标准的数字信封生成与解密",
+    badges: ["SM2", "SM4", "数字信封"],
+    category: "Encryption_Tools",
+    path: "/tools/digital-envelope",
+    icon: "Mail",
+    isNew: true,
+  },
 
   passwordGenerator: {
     key: "passwordGenerator",
@@ -155,6 +188,7 @@ export const toolsData: ToolsData = {
     icon: "Watch",
     isNew: true,
   },
+  
 }
 
 // 获取工具按分类分组

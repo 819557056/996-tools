@@ -245,6 +245,11 @@ tools:
     output: 'Hexadecimal Output'
     copy: 'Copy Output'
     clear: 'Clear'
+    modeFile: 'File Upload'
+    modeText: 'Text Input'
+    textInputPlaceholder: 'Paste text, Hex, Base64 or PEM content here...'
+    process: 'Process'
+    cleared: 'Cleared all content'
     about:
       title: 'About Binary Viewer'
       format: 'Output Format'
@@ -257,11 +262,23 @@ tools:
       usageItem3: 'Set starting offset to adjust address display'
 
   certificate-viewer:
-    title: '证书查看器'
-    description: '证书查看器'
+    title: 'Certificate Viewer'
+    description: 'Certificate Viewer'
     input: 'Input'
     output: 'Output'
     action: 'Execute'
+
+  sm2tool:
+    title: 'SM2 Tool'
+    description: 'SM2 Encryption/Decryption/Signature/Verification'
+
+  sm4tool:
+    title: 'SM4 Tool'
+    description: 'SM4 Block Cipher Algorithm (ECB/CBC)'
+
+  digitalEnvelope:
+    title: 'Digital Envelope'
+    description: 'Digital Envelope Generation and Decryption based on GM/T 0010'
 
 common:
   copy: 'Copy'

@@ -1,4 +1,5 @@
 import * as forge from 'node-forge';
+import { STANDARD_OID_NAMES, INDUSTRY_OID_MAPS, type IndustryType } from './certificateOids';
 
 export interface CertificateInfo {
   version: string;
@@ -33,59 +34,20 @@ export interface CertificateInfo {
   };
 }
 
-// OID 映射
-export const OID_NAMES: Record<string, string> = {
-  // 算法
-  '1.2.840.113549.1.1.1': 'RSA',
-  '1.2.840.113549.1.1.5': 'SHA1withRSA',
-  '1.2.840.113549.1.1.11': 'SHA256withRSA',
-  '1.2.840.113549.1.1.12': 'SHA384withRSA',
-  '1.2.840.113549.1.1.13': 'SHA512withRSA',
-  '1.2.840.10045.2.1': 'EC Public Key',
-  '1.2.840.10045.4.3.2': 'SHA256withECDSA',
-  '1.2.840.10045.4.3.3': 'SHA384withECDSA',
-  '1.2.840.10045.4.3.4': 'SHA512withECDSA',
-  '1.2.156.10197.1.301': 'SM2 (国密)',
-  '1.2.156.10197.1.501': 'SM3withSM2 (国密)',
-
-  // 常用名称 (DN)
-  '2.5.4.3': '通用名称 (CN)',
-  '2.5.4.6': '国家/地区 (C)',
-  '2.5.4.7': '城市/地点 (L)',
-  '2.5.4.8': '省/市/自治区 (ST)',
-  '2.5.4.10': '组织 (O)',
-  '2.5.4.11': '组织单位 (OU)',
-  '2.5.4.9': '街道地址',
-  '2.5.4.5': '序列号',
-  '2.5.4.17': '邮政编码',
-  '1.2.840.113549.1.9.1': '电子邮件',
-
-  // 扩展
-  '2.5.29.14': '使用者密钥标识符 (Subject Key Identifier)',
-  '2.5.29.15': '密钥用法 (Key Usage)',
-  '2.5.29.17': '使用者可选名称 (Subject Alternative Name)',
-  '2.5.29.19': '基本约束 (Basic Constraints)',
-  '2.5.29.31': 'CRL 分发点 (CRL Distribution Points)',
-  '2.5.29.32': '证书策略 (Certificate Policies)',
-  '2.5.29.35': '授权密钥标识符 (Authority Key Identifier)',
-  '2.5.29.37': '增强密钥用法 (Extended Key Usage)',
-  '1.3.6.1.5.5.7.1.1': '授权信息访问 (Authority Info Access)',
-  '1.3.6.1.4.1.11129.2.4.2': 'SCT 列表 (Signed Certificate Timestamp List)',
-  
-  // 增强密钥用法
-  '1.3.6.1.5.5.7.3.1': '服务器身份验证',
-  '1.3.6.1.5.5.7.3.2': '客户端身份验证',
-  '1.3.6.1.5.5.7.3.3': '代码签名',
-  '1.3.6.1.5.5.7.3.4': '电子邮件保护',
-  '1.3.6.1.5.5.7.3.8': '时间戳',
-  '1.3.6.1.5.5.7.3.9': 'OCSP 签名',
-};
+// OID 映射逻辑：优先使用行业映射，如果未找到则使用标准映射
+function getOidName(oid: string, industry: IndustryType = 'standard'): string {
+  const industryMap = INDUSTRY_OID_MAPS[industry];
+  if (industryMap && industryMap[oid]) {
+    return industryMap[oid];
+  }
+  return STANDARD_OID_NAMES[oid] || oid;
+}
 
 // 解析输入的证书（支持多种格式）
-export function parseCertificate(input: string): CertificateInfo {
+export function parseCertificate(input: string, industry: IndustryType = 'standard'): CertificateInfo {
   let der: string;
   let asn1: forge.asn1.Asn1;
-  
+
   try {
     // 尝试 PEM 格式
     if (input.includes('-----BEGIN CERTIFICATE-----')) {
@@ -94,7 +56,7 @@ export function parseCertificate(input: string): CertificateInfo {
         .replace(/-----END CERTIFICATE-----/g, '')
         .replace(/\s/g, '');
       der = forge.util.decode64(base64);
-    } 
+    }
     // 尝试 Base64 格式（无 PEM 头尾）
     else if (/^[A-Za-z0-9+/=\s]+$/.test(input.trim())) {
       const base64 = input.replace(/\s/g, '');
@@ -109,17 +71,17 @@ export function parseCertificate(input: string): CertificateInfo {
     }
 
     asn1 = forge.asn1.fromDer(der);
-    
+
     // 尝试使用 forge 解析
     let cert: forge.pki.Certificate | null = null;
     try {
       cert = forge.pki.certificateFromAsn1(asn1);
-      return extractCertificateInfo(cert, asn1);
+      return extractCertificateInfo(cert, asn1, industry);
     } catch (forgeError: any) {
       // 如果 forge 解析失败（例如国密证书），使用自定义解析
-      if (forgeError.message?.includes('Cannot read public key') || 
-          forgeError.message?.includes('OID is not RSA')) {
-        return extractCertificateInfoFromAsn1(asn1, der);
+      if (forgeError.message?.includes('Cannot read public key') ||
+        forgeError.message?.includes('OID is not RSA')) {
+        return extractCertificateInfoFromAsn1(asn1, der, industry);
       }
       throw forgeError;
     }
@@ -130,7 +92,7 @@ export function parseCertificate(input: string): CertificateInfo {
 
 // 从文件解析证书
 // 兼容：PEM / Base64 / HEX 文本证书，以及二进制 DER 证书（无论后缀是 .der 还是 .cer/.crt 等）
-export async function parseCertificateFromFile(file: File): Promise<CertificateInfo> {
+export async function parseCertificateFromFile(file: File, industry: IndustryType = 'standard'): Promise<CertificateInfo> {
   try {
     // 优先按文本读取，便于处理 PEM / Base64 / HEX / 文本 DER（极少见）
     const text = await file.text();
@@ -139,17 +101,17 @@ export async function parseCertificateFromFile(file: File): Promise<CertificateI
     if (isBinaryContent(text)) {
       const arrayBuffer = await file.arrayBuffer();
       const base64 = arrayBufferToBase64(arrayBuffer);
-      return parseCertificate(base64);
+      return parseCertificate(base64, industry);
     }
 
     // 否则当作普通文本输入，交给 parseCertificate 识别 PEM / Base64 / HEX
-    return parseCertificate(text);
+    return parseCertificate(text, industry);
   } catch (error: any) {
     // 如果按文本读取或解析失败，再尝试纯二进制方式，作为兜底
     try {
       const arrayBuffer = await file.arrayBuffer();
       const base64 = arrayBufferToBase64(arrayBuffer);
-      return parseCertificate(base64);
+      return parseCertificate(base64, industry);
     } catch (binaryError: any) {
       throw new Error(`证书文件解析失败: ${binaryError.message}`);
     }
@@ -183,11 +145,12 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
 }
 
 // 从 ASN.1 直接提取证书信息（用于国密等不被 forge 完全支持的证书）
-function extractCertificateInfoFromAsn1(asn1: forge.asn1.Asn1, der: string): CertificateInfo {
+function extractCertificateInfoFromAsn1(asn1: forge.asn1.Asn1, der: string, industry: IndustryType): CertificateInfo {
   try {
     // TBSCertificate 在第一个 SEQUENCE 中
     const tbsCertificate = (asn1 as any).value[0];
-    
+    const extensions: CertificateInfo['extensions'] = [];
+
     // 版本（可选，默认为 v1）
     let version = 0;
     let currentIndex = 0;
@@ -195,40 +158,44 @@ function extractCertificateInfoFromAsn1(asn1: forge.asn1.Asn1, der: string): Cer
       version = tbsCertificate.value[0].value[0].value.charCodeAt(0);
       currentIndex = 1;
     }
-    
+
     // 序列号
     const serialNumber = forge.util.bytesToHex(tbsCertificate.value[currentIndex].value).toUpperCase();
     currentIndex++;
-    
+
     // 签名算法
     const signatureAlg = tbsCertificate.value[currentIndex];
     const signatureOid = forge.asn1.derToOid(signatureAlg.value[0].value);
-    const signatureAlgorithm = OID_NAMES[signatureOid] || signatureOid;
+    const signatureAlgorithm = getOidName(signatureOid, industry);
     currentIndex++;
-    
+
     // 颁发者
     const issuerAsn1 = tbsCertificate.value[currentIndex];
-    const issuer = parseDistinguishedNameFromAsn1(issuerAsn1);
+    const issuer = parseDistinguishedNameFromAsn1(issuerAsn1, industry, (name, value) => {
+      extensions.push({ name, critical: false, value });
+    });
     currentIndex++;
-    
+
     // 有效期
     const validity = tbsCertificate.value[currentIndex];
     const validFrom = parseAsn1Time(validity.value[0]).toISOString();
     const validTo = parseAsn1Time(validity.value[1]).toISOString();
     currentIndex++;
-    
+
     // 使用者
     const subjectAsn1 = tbsCertificate.value[currentIndex];
-    const subject = parseDistinguishedNameFromAsn1(subjectAsn1);
+    const subject = parseDistinguishedNameFromAsn1(subjectAsn1, industry, (name, value) => {
+      extensions.push({ name, critical: false, value });
+    });
     currentIndex++;
-    
+
     // 公钥信息
     const publicKeyInfo = tbsCertificate.value[currentIndex];
-    const publicKey = parsePublicKeyFromAsn1(publicKeyInfo);
+    const publicKey = parsePublicKeyFromAsn1(publicKeyInfo, industry);
     currentIndex++;
-    
+
     // 扩展（可选）
-    const extensions: CertificateInfo['extensions'] = [];
+    // extensions 已在函数开头初始化
     if (currentIndex < tbsCertificate.value.length) {
       const extField = tbsCertificate.value[currentIndex];
       if (extField.tagClass === forge.asn1.Class.CONTEXT_SPECIFIC && extField.type === 3) {
@@ -237,14 +204,14 @@ function extractCertificateInfoFromAsn1(asn1: forge.asn1.Asn1, der: string): Cer
           for (const ext of extsSeq.value) {
             try {
               const extOid = forge.asn1.derToOid(ext.value[0].value);
-              const extName = getExtensionName(extOid);
+              const extName = getExtensionName(extOid, industry);
               const critical = ext.value.length > 2 && ext.value[1].value[0] === 0xff;
               const valueIndex = critical ? 2 : 1;
-              
+
               // 解析扩展值
               const extValueOctetString = ext.value[valueIndex];
-              const extValue = parseExtensionValue(extOid, extName, extValueOctetString);
-              
+              const extValue = parseExtensionValue(extOid, extName, extValueOctetString, industry);
+
               extensions.push({
                 name: extName,
                 critical,
@@ -257,14 +224,14 @@ function extractCertificateInfoFromAsn1(asn1: forge.asn1.Asn1, der: string): Cer
         }
       }
     }
-    
+
     // 计算指纹
     const fingerprints = calculateFingerprintsFromDer(der);
-    
+
     // 生成 PEM
     const pem = `-----BEGIN CERTIFICATE-----\n${forge.util.encode64(der).match(/.{1,64}/g)?.join('\n')}\n-----END CERTIFICATE-----`;
     const derHex = forge.util.bytesToHex(der).toUpperCase();
-    
+
     return {
       version: `V${version + 1}`,
       serialNumber,
@@ -286,24 +253,32 @@ function extractCertificateInfoFromAsn1(asn1: forge.asn1.Asn1, der: string): Cer
   }
 }
 
+// DN OID 到短名称的映射（用于 UI 绑定）
+const DN_OID_SHORT_NAMES: Record<string, string> = {
+  '2.5.4.3': 'CN',
+  '2.5.4.6': 'C',
+  '2.5.4.7': 'L',
+  '2.5.4.8': 'ST',
+  '2.5.4.10': 'O',
+  '2.5.4.11': 'OU',
+  '2.5.4.9': 'STREET',
+  '2.5.4.5': 'SERIALNUMBER',
+  '1.2.840.113549.1.9.1': 'E',
+};
+
 // 从 ASN.1 解析 Distinguished Name
-function parseDistinguishedNameFromAsn1(dnAsn1: forge.asn1.Asn1): Record<string, string> {
+function parseDistinguishedNameFromAsn1(
+  dnAsn1: forge.asn1.Asn1,
+  industry: IndustryType,
+  onIndustryOid?: (name: string, value: string) => void
+): Record<string, string> {
   const result: Record<string, string> = {};
-  const nameMap: Record<string, string> = {
-    '2.5.4.3': 'CN',
-    '2.5.4.6': 'C',
-    '2.5.4.7': 'L',
-    '2.5.4.8': 'ST',
-    '2.5.4.10': 'O',
-    '2.5.4.11': 'OU',
-  };
-  
   try {
     for (const rdn of (dnAsn1 as any).value) {
       for (const atv of rdn.value) {
         const oid = forge.asn1.derToOid(atv.value[0].value);
         let value = atv.value[1].value;
-        
+
         // 尝试将字节字符串解码为 UTF-8
         try {
           // 检测是否包含 UTF-8 多字节字符（首字节 >= 0xC0）
@@ -314,7 +289,7 @@ function parseDistinguishedNameFromAsn1(dnAsn1: forge.asn1.Asn1): Record<string,
               break;
             }
           }
-          
+
           if (hasMultibyte) {
             // 将字符串转换为 UTF-8 字节数组
             const bytes = new Uint8Array(value.length);
@@ -328,22 +303,30 @@ function parseDistinguishedNameFromAsn1(dnAsn1: forge.asn1.Asn1): Record<string,
         } catch (decodeError) {
           // 如果解码失败，保持原值
         }
-        
-        const name = nameMap[oid] || oid;
+
+        let name = DN_OID_SHORT_NAMES[oid];
+        if (!name) {
+          name = getOidName(oid, industry);
+        }
         result[name] = value;
+
+        // 如果是行业特定的 OID，触发回调
+        if (onIndustryOid && INDUSTRY_OID_MAPS[industry]?.[oid]) {
+          onIndustryOid(name, value);
+        }
       }
     }
   } catch (e) {
     // 忽略错误
   }
-  
+
   return result;
 }
 
 // 解析 ASN.1 时间
 function parseAsn1Time(timeAsn1: forge.asn1.Asn1): Date {
   const timeStr = (timeAsn1 as any).value;
-  
+
   // UTCTime (YYMMDDHHMMSSZ) or GeneralizedTime (YYYYMMDDHHMMSSZ)
   if (timeStr.length === 13) {
     // UTCTime
@@ -365,23 +348,23 @@ function parseAsn1Time(timeAsn1: forge.asn1.Asn1): Date {
     const second = parseInt(timeStr.substring(12, 14), 10);
     return new Date(Date.UTC(year, month, day, hour, minute, second));
   }
-  
+
   return new Date();
 }
 
 // 从 ASN.1 解析公钥信息
-function parsePublicKeyFromAsn1(publicKeyInfoAsn1: forge.asn1.Asn1): CertificateInfo['publicKey'] {
+function parsePublicKeyFromAsn1(publicKeyInfoAsn1: forge.asn1.Asn1, industry: IndustryType): CertificateInfo['publicKey'] {
   try {
     const algorithm = (publicKeyInfoAsn1 as any).value[0];
     const oid = forge.asn1.derToOid(algorithm.value[0].value);
-    const algorithmName = OID_NAMES[oid] || oid;
-    
+    const algorithmName = getOidName(oid, industry);
+
     const publicKeyBits = (publicKeyInfoAsn1 as any).value[1];
     const publicKeyBytes = publicKeyBits.value;
-    
+
     let size = 'Unknown';
     let keyDetails: any = {};
-    
+
     // 尝试解析公钥详情
     try {
       if (oid === '1.2.156.10197.1.301') {
@@ -405,7 +388,7 @@ function parsePublicKeyFromAsn1(publicKeyInfoAsn1: forge.asn1.Asn1): Certificate
     } catch (e) {
       // 忽略解析错误
     }
-    
+
     return {
       algorithm: algorithmName,
       size,
@@ -433,27 +416,16 @@ function formatHexString(hexStr: string): string {
 }
 
 // 获取扩展名称
-function getExtensionName(oid: string): string {
-  const extNames: Record<string, string> = {
-    '2.5.29.15': 'keyUsage',
-    '2.5.29.37': 'extKeyUsage',
-    '2.5.29.17': 'subjectAltName',
-    '2.5.29.19': 'basicConstraints',
-    '2.5.29.14': 'subjectKeyIdentifier',
-    '2.5.29.35': 'authorityKeyIdentifier',
-    '2.5.29.31': 'cRLDistributionPoints',
-    '1.3.6.1.5.5.7.1.1': 'authorityInfoAccess',
-    '2.5.29.32': 'certificatePolicies',
-  };
-  return extNames[oid] || oid;
+function getExtensionName(oid: string, industry: IndustryType): string {
+  return getOidName(oid, industry);
 }
 
 // 解析扩展值
-function parseExtensionValue(oid: string, name: string, extValueAsn1: forge.asn1.Asn1): string {
+function parseExtensionValue(oid: string, _name: string, extValueAsn1: forge.asn1.Asn1, industry: IndustryType): string {
   try {
     // OCTET STRING 包含实际的扩展值
     const octets = (extValueAsn1 as any).value;
-    
+
     // 尝试将 OCTET STRING 解析为 ASN.1
     let valueAsn1: forge.asn1.Asn1;
     try {
@@ -462,27 +434,27 @@ function parseExtensionValue(oid: string, name: string, extValueAsn1: forge.asn1
       // 如果无法解析为 ASN.1，返回十六进制
       return `OID: ${oid}\n十六进制: ${formatHex(octets)}`;
     }
-    
+
     // 根据扩展类型解析
     switch (oid) {
       case '2.5.29.15': // keyUsage
         return parseKeyUsage(valueAsn1);
-      
+
       case '2.5.29.19': // basicConstraints
         return parseBasicConstraints(valueAsn1);
-      
+
       case '2.5.29.14': // subjectKeyIdentifier
         return parseKeyIdentifier(valueAsn1);
-      
+
       case '2.5.29.35': // authorityKeyIdentifier
         return parseAuthorityKeyIdentifier(valueAsn1);
-      
+
       case '2.5.29.17': // subjectAltName
         return parseSubjectAltName(valueAsn1);
-      
+
       case '2.5.29.37': // extKeyUsage
-        return parseExtKeyUsage(valueAsn1);
-      
+        return parseExtKeyUsage(valueAsn1, industry);
+
       default:
         // 对于未知的扩展，尝试显示为字符串或十六进制
         const valueStr = formatAsn1Value(valueAsn1);
@@ -498,7 +470,7 @@ function parseKeyUsage(asn1: forge.asn1.Asn1): string {
   try {
     const bitString = (asn1 as any).value;
     const usages = [];
-    
+
     // KeyUsage BIT STRING 的每一位代表一个用途
     if (bitString.length > 0) {
       const byte1 = bitString.charCodeAt(0);
@@ -511,12 +483,12 @@ function parseKeyUsage(asn1: forge.asn1.Asn1): string {
       if (byte1 & 0x02) usages.push('CRL 签名 (CRL Sign)');
       if (byte1 & 0x01) usages.push('仅加密 (Encipher Only)');
     }
-    
+
     if (bitString.length > 1) {
       const byte2 = bitString.charCodeAt(1);
       if (byte2 & 0x80) usages.push('仅解密 (Decipher Only)');
     }
-    
+
     return usages.length > 0 ? usages.join('\n') : '未指定';
   } catch (e) {
     return '解析失败';
@@ -529,7 +501,7 @@ function parseBasicConstraints(asn1: forge.asn1.Asn1): string {
     const seq = (asn1 as any).value;
     let isCA = false;
     let pathLen: number | undefined;
-    
+
     if (seq && seq.length > 0) {
       // 第一个元素可能是 cA BOOLEAN
       if (seq[0].type === forge.asn1.Type.BOOLEAN) {
@@ -540,7 +512,7 @@ function parseBasicConstraints(asn1: forge.asn1.Asn1): string {
         pathLen = parseInt(forge.util.bytesToHex(seq[1].value), 16);
       }
     }
-    
+
     let result = `CA: ${isCA ? '是' : '否'}`;
     if (pathLen !== undefined) {
       result += `\n路径长度限制: ${pathLen}`;
@@ -555,15 +527,15 @@ function parseBasicConstraints(asn1: forge.asn1.Asn1): string {
 function parseKeyIdentifier(asn1: forge.asn1.Asn1): string {
   try {
     const value = (asn1 as any).value;
-    
+
     if (typeof value === 'string') {
       return formatHex(value);
     }
-    
+
     if (Array.isArray(value) && value.length > 0) {
       return formatHex(value[0].value || value[0]);
     }
-    
+
     return '无法解析该格式';
   } catch (e) {
     return `解析错误: ${(e as Error).message}`;
@@ -574,14 +546,14 @@ function parseKeyIdentifier(asn1: forge.asn1.Asn1): string {
 function parseAuthorityKeyIdentifier(asn1: forge.asn1.Asn1): string {
   try {
     const value = (asn1 as any).value;
-    
+
     if (Array.isArray(value)) {
       const parts: string[] = [];
-      
+
       for (const item of value) {
         const itemType = item.type;
         const itemValue = item.value;
-        
+
         // keyIdentifier [0]
         if (itemType === 0x80 || itemType === 0) {
           parts.push(`Key ID: ${formatHex(itemValue)}`);
@@ -595,14 +567,14 @@ function parseAuthorityKeyIdentifier(asn1: forge.asn1.Asn1): string {
           parts.push(`Serial: ${formatHex(itemValue)}`);
         }
       }
-      
+
       return parts.length > 0 ? parts.join('\n') : formatHex(value[0]?.value || '');
     }
-    
+
     if (typeof value === 'string') {
       return formatHex(value);
     }
-    
+
     return '无法解析该格式';
   } catch (e) {
     return `解析错误: ${(e as Error).message}`;
@@ -614,12 +586,12 @@ function parseSubjectAltName(asn1: forge.asn1.Asn1): string {
   try {
     const altNames: string[] = [];
     const seq = (asn1 as any).value;
-    
+
     if (seq) {
       for (const item of seq) {
         const type = item.type;
         const value = item.value;
-        
+
         switch (type) {
           case 0x82: // dNSName [2]
             altNames.push(`DNS: ${value}`);
@@ -641,7 +613,7 @@ function parseSubjectAltName(asn1: forge.asn1.Asn1): string {
         }
       }
     }
-    
+
     return altNames.length > 0 ? altNames.join('\n') : '无';
   } catch (e) {
     return '解析失败';
@@ -649,27 +621,18 @@ function parseSubjectAltName(asn1: forge.asn1.Asn1): string {
 }
 
 // 解析 extKeyUsage
-function parseExtKeyUsage(asn1: forge.asn1.Asn1): string {
+function parseExtKeyUsage(asn1: forge.asn1.Asn1, industry: IndustryType): string {
   try {
     const usages: string[] = [];
     const seq = (asn1 as any).value;
-    
-    const usageMap: Record<string, string> = {
-      '1.3.6.1.5.5.7.3.1': '服务器身份验证 (TLS Web Server Authentication)',
-      '1.3.6.1.5.5.7.3.2': '客户端身份验证 (TLS Web Client Authentication)',
-      '1.3.6.1.5.5.7.3.3': '代码签名 (Code Signing)',
-      '1.3.6.1.5.5.7.3.4': '电子邮件保护 (Email Protection)',
-      '1.3.6.1.5.5.7.3.8': '时间戳 (Time Stamping)',
-      '1.3.6.1.5.5.7.3.9': 'OCSP 签名 (OCSP Signing)',
-    };
-    
+
     if (seq) {
       for (const item of seq) {
         const oid = forge.asn1.derToOid(item.value);
-        usages.push(usageMap[oid] || `OID: ${oid}`);
+        usages.push(getOidName(oid, industry));
       }
     }
-    
+
     return usages.length > 0 ? usages.join('\n') : '未指定';
   } catch (e) {
     return '解析失败';
@@ -681,17 +644,17 @@ function formatAsn1Value(asn1: forge.asn1.Asn1): string {
   try {
     const type = (asn1 as any).type;
     const value = (asn1 as any).value;
-    
+
     if (type === forge.asn1.Type.SEQUENCE && Array.isArray(value)) {
       const items: string[] = [];
       for (let i = 0; i < Math.min(value.length, 10); i++) {
         const item = value[i];
         const itemType = item.type;
         const itemValue = item.value;
-        
-        if (itemType === forge.asn1.Type.PRINTABLESTRING || 
-            itemType === forge.asn1.Type.UTF8 ||
-            itemType === forge.asn1.Type.IA5STRING) {
+
+        if (itemType === forge.asn1.Type.PRINTABLESTRING ||
+          itemType === forge.asn1.Type.UTF8 ||
+          itemType === forge.asn1.Type.IA5STRING) {
           items.push(`[${i}] 字符串: ${itemValue}`);
         } else if (itemType === forge.asn1.Type.INTEGER) {
           items.push(`[${i}] 整数: ${formatHex(itemValue)}`);
@@ -708,17 +671,17 @@ function formatAsn1Value(asn1: forge.asn1.Asn1): string {
           items.push(`[${i}] 类型 ${itemType}`);
         }
       }
-      
+
       if (value.length > 10) {
         items.push('...(更多项目)');
       }
-      
+
       return items.length > 0 ? items.join('\n') : `SEQUENCE (${value.length} 项)`;
     } else if (type === forge.asn1.Type.OCTETSTRING) {
       return `十六进制: ${formatHex(value)}`;
-    } else if (type === forge.asn1.Type.PRINTABLESTRING || 
-               type === forge.asn1.Type.UTF8 ||
-               type === forge.asn1.Type.IA5STRING) {
+    } else if (type === forge.asn1.Type.PRINTABLESTRING ||
+      type === forge.asn1.Type.UTF8 ||
+      type === forge.asn1.Type.IA5STRING) {
       return `字符串: ${value}`;
     } else if (type === forge.asn1.Type.INTEGER) {
       return `整数: ${formatHex(value)}`;
@@ -765,10 +728,10 @@ function getCurveSize(oid: string): string {
 function calculateFingerprintsFromDer(der: string) {
   const md5 = forge.md.md5.create();
   md5.update(der);
-  
+
   const sha1 = forge.md.sha1.create();
   sha1.update(der);
-  
+
   const sha256 = forge.md.sha256.create();
   sha256.update(der);
 
@@ -780,14 +743,14 @@ function calculateFingerprintsFromDer(der: string) {
 }
 
 // 提取证书详细信息（标准 RSA 证书）
-function extractCertificateInfo(cert: forge.pki.Certificate, asn1?: forge.asn1.Asn1): CertificateInfo {
+function extractCertificateInfo(cert: forge.pki.Certificate, _asn1?: forge.asn1.Asn1, industry: IndustryType = 'standard'): CertificateInfo {
   // 解析 Distinguished Name
   const parseDistinguishedName = (name: forge.pki.CertificateField[]): Record<string, string> => {
     const result: Record<string, string> = {};
     name.forEach((attr) => {
       const shortName = attr.shortName || attr.name;
       let value = attr.value;
-      
+
       // 尝试将字节字符串解码为 UTF-8（如果需要）
       try {
         if (typeof value === 'string') {
@@ -798,7 +761,7 @@ function extractCertificateInfo(cert: forge.pki.Certificate, asn1?: forge.asn1.A
               break;
             }
           }
-          
+
           if (hasMultibyte) {
             const bytes = new Uint8Array(value.length);
             for (let i = 0; i < value.length; i++) {
@@ -811,7 +774,7 @@ function extractCertificateInfo(cert: forge.pki.Certificate, asn1?: forge.asn1.A
       } catch (decodeError) {
         // 如果解码失败，保持原值
       }
-      
+
       result[shortName] = value;
     });
     return result;
@@ -837,7 +800,7 @@ function extractCertificateInfo(cert: forge.pki.Certificate, asn1?: forge.asn1.A
         // 尝试从证书 ASN.1 中提取
         const oid = (cert as any).publicKey?.oid || (publicKey as any).oid;
         if (oid) {
-          keyInfo.algorithm = OID_NAMES[oid] || oid;
+          keyInfo.algorithm = getOidName(oid, industry);
         } else {
           keyInfo.algorithm = '未知';
         }
@@ -855,7 +818,7 @@ function extractCertificateInfo(cert: forge.pki.Certificate, asn1?: forge.asn1.A
   const parseExtensions = (extensions: any[]): CertificateInfo['extensions'] => {
     return extensions.map((ext) => {
       let value = '';
-      
+
       try {
         if (ext.name === 'subjectAltName') {
           const altNames = (ext as any).altNames || [];
@@ -904,8 +867,20 @@ function extractCertificateInfo(cert: forge.pki.Certificate, asn1?: forge.asn1.A
         value = ext.value || JSON.stringify(ext);
       }
 
+      const oid = ext.id;
+      let name = ext.name;
+
+      // 优先使用行业映射的名称
+      if (oid && INDUSTRY_OID_MAPS[industry]?.[oid]) {
+        name = INDUSTRY_OID_MAPS[industry][oid];
+      } else if (!name && oid) {
+        name = getOidName(oid, industry);
+      } else if (!name) {
+        name = 'Unknown';
+      }
+
       return {
-        name: ext.name,
+        name,
         critical: ext.critical || false,
         value,
       };
@@ -915,13 +890,13 @@ function extractCertificateInfo(cert: forge.pki.Certificate, asn1?: forge.asn1.A
   // 计算指纹
   const calculateFingerprints = (cert: forge.pki.Certificate) => {
     const der = forge.asn1.toDer(forge.pki.certificateToAsn1(cert)).getBytes();
-    
+
     const md5 = forge.md.md5.create();
     md5.update(der);
-    
+
     const sha1 = forge.md.sha1.create();
     sha1.update(der);
-    
+
     const sha256 = forge.md.sha256.create();
     sha256.update(der);
 
@@ -948,13 +923,58 @@ function extractCertificateInfo(cert: forge.pki.Certificate, asn1?: forge.asn1.A
   const issuer = parseDistinguishedName(cert.issuer.attributes);
   const subject = parseDistinguishedName(cert.subject.attributes);
   const publicKey = parsePublicKey(cert.publicKey, cert);
-  const extensions = parseExtensions(cert.extensions);
+  const extensions = parseExtensions(cert.extensions || []);
+
+  // 扫描 Subject 和 Issuer 中的行业特定 OID，并添加到扩展列表中
+  const industryMap = INDUSTRY_OID_MAPS[industry];
+  if (industry && industry !== 'standard' && industryMap) {
+    const addIndustryOids = (attrs: forge.pki.CertificateField[]) => {
+      if (!attrs) return;
+      attrs.forEach((attr) => {
+        const oid = attr.type;
+        if (oid && industryMap[oid]) {
+          let value = attr.value;
+          // 尝试解码值（与 parseDistinguishedName 逻辑一致）
+          try {
+            if (typeof value === 'string') {
+              let hasMultibyte = false;
+              for (let i = 0; i < value.length; i++) {
+                if (value.charCodeAt(i) >= 192) {
+                  hasMultibyte = true;
+                  break;
+                }
+              }
+              if (hasMultibyte) {
+                const bytes = new Uint8Array(value.length);
+                for (let i = 0; i < value.length; i++) {
+                  bytes[i] = value.charCodeAt(i);
+                }
+                const decoder = new TextDecoder('utf-8');
+                value = decoder.decode(bytes);
+              }
+            }
+          } catch (e) {
+            // 忽略解码错误
+          }
+
+          extensions.push({
+            name: industryMap[oid],
+            critical: false,
+            value: value as string,
+          });
+        }
+      });
+    };
+
+    addIndustryOids(cert.subject.attributes);
+    addIndustryOids(cert.issuer.attributes);
+  }
   const fingerprints = calculateFingerprints(cert);
   const raw = getRawFormats(cert);
 
   // 获取签名算法名称
   const sigAlgOid = (cert as any).signatureOid || cert.siginfo?.algorithmOid || '未知';
-  const signatureAlgorithm = OID_NAMES[sigAlgOid] || sigAlgOid;
+  const signatureAlgorithm = getOidName(sigAlgOid, industry);
 
   return {
     version: `V${cert.version + 1}`,
@@ -975,20 +995,19 @@ function extractCertificateInfo(cert: forge.pki.Certificate, asn1?: forge.asn1.A
 export function formatDistinguishedName(dn: Record<string, string>): string {
   const order = ['CN', 'OU', 'O', 'L', 'ST', 'C'];
   const parts = [];
-  
+
   for (const key of order) {
     if (dn[key]) {
       parts.push(`${key}=${dn[key]}`);
     }
   }
-  
+
   // 添加其他字段
   for (const [key, value] of Object.entries(dn)) {
     if (!order.includes(key)) {
       parts.push(`${key}=${value}`);
     }
   }
-  
+
   return parts.join(', ');
 }
-

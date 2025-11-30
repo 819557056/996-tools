@@ -29,7 +29,7 @@
       <!-- 输入控件 -->
       <div class="space-y-4">
         <!-- 模式切换 -->
-        <div class="flex gap-6 text-sm">
+        <div class="flex gap-6 text-sm items-center">
           <label class="flex items-center cursor-pointer">
             <input v-model="inputMode" type="radio" value="text" class="mr-2" />
             <span>文本输入</span>
@@ -38,6 +38,18 @@
             <input v-model="inputMode" type="radio" value="file" class="mr-2" />
             <span>文件上传</span>
           </label>
+          
+          <div class="ml-auto flex items-center gap-2">
+            <span class="text-muted-foreground">行业模板:</span>
+            <select 
+              v-model="selectedIndustry"
+              class="bg-background border border-border rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+            >
+              <option v-for="opt in industryOptions" :key="opt.value" :value="opt.value">
+                {{ opt.label }}
+              </option>
+            </select>
+          </div>
         </div>
 
         <!-- 文本输入 -->
@@ -326,7 +338,9 @@ const {
   handleFileUpload,
   clearAll,
   copyText,
-  formatDate
+  formatDate,
+  selectedIndustry,
+  industryOptions
 } = useCertificateViewer()
 
 // UI State

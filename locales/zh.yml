@@ -35,7 +35,7 @@ sidebar:
     Encryption_Tools: '加密工具'
     Security_Tools: '安全工具'
     Text_Manipulation: '文本处理'
-    Image_Videos: 'Image & Videos'
+    Image_Videos: '图片和视频'
     ID_Generators: 'ID 生成器'
     pki: '公钥基础设施'
     PKI: '公钥基础设施'
@@ -245,6 +245,11 @@ tools:
     output: '十六进制输出'
     copy: '复制输出'
     clear: '清空'
+    modeFile: '文件上传'
+    modeText: '文本输入'
+    textInputPlaceholder: '在此粘贴文本、Hex、Base64 或 PEM 内容...'
+    process: '处理'
+    cleared: '已清空所有内容'
     about:
       title: '关于二进制查看器'
       format: '输出格式说明'
@@ -262,6 +267,18 @@ tools:
     input: '输入'
     output: '输出'
     action: '执行'
+
+  sm2tool:
+    title: 'SM2 工具'
+    description: 'SM2 加密/解密/签名/验签'
+
+  sm4tool:
+    title: 'SM4 工具'
+    description: 'SM4 分组密码算法，支持 ECB 和 CBC 模式'
+
+  digitalEnvelope:
+    title: '数字信封'
+    description: '基于GM/T 0010标准的数字信封生成与解密'
 
 common:
   copy: '复制'

@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p E:001---workspaces002-web996-toolssrcviewstoolsSm2Tool)",
+      "Bash(touch E:\\001---workspaces\\002-web\\996-tools\\src\\views\\tools\\Sm2Tool\\index.vue)",
+      "Bash(touch E:001---workspaces002-web996-toolssrcviewstoolsSm2TooluseSm2Tool.ts)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
