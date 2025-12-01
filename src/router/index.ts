@@ -54,6 +54,26 @@ const router = createRouter({
           component: () => import('../views/tools/JsonFormatter/index.vue'),
         },
         {
+          path: '/tools/code-generator',
+          name: 'code-generator',
+          component: () => import('../views/tools/CodeGenerator/index.vue'),
+        },
+        {
+          path: '/tools/json-query',
+          name: 'json-query',
+          component: () => import('../views/tools/JsonQuery/index.vue'),
+        },
+        {
+          path: '/tools/json-diff',
+          name: 'json-diff',
+          component: () => import('../views/tools/JsonDiff/index.vue'),
+        },
+        {
+          path: '/tools/json-visualizer',
+          name: 'json-visualizer',
+          component: () => import('../views/tools/JsonVisualizer/index.vue'),
+        },
+        {
           path: '/tools/transcoding',
           name: 'transcoding',
           component: () => import('../views/tools/Transcoding/index.vue'),
@@ -92,6 +112,21 @@ const router = createRouter({
           path: '/tools/digital-envelope',
           name: 'digital-envelope',
           component: () => import('../views/tools/DigitalEnvelope/index.vue'),
+        },
+        {
+          path: '/tools/format-converter',
+          name: 'format-converter',
+          component: () => import('../views/tools/FormatConverter/index.vue'),
+        },
+        {
+          path: '/tools/yaml-toml-editor',
+          name: 'yaml-toml-editor',
+          component: () => import('../views/tools/YamlTomlEditor/index.vue'),
+        },
+        {
+          path: '/tools/csv-advanced',
+          name: 'csv-advanced',
+          component: () => import('../views/tools/CsvAdvanced/index.vue'),
         },
       ],
     },

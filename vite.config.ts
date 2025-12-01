@@ -30,6 +30,10 @@ export default defineConfig({
       threshold: 1024,
     }),
   ],
+  define: {
+    // 为 @iarna/toml 等 Node.js 包提供浏览器环境兼容性
+    'global': 'globalThis',
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))

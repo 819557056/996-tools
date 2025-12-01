@@ -107,7 +107,8 @@ import { RouterLink, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { 
   Sun, Moon, Text, Lock, Binary, Link as LinkIcon, QrCode, IdCard, FileJson, ChevronRight,
-  LayoutGrid, Shield, Image, Fingerprint, Code2, ArrowLeftRight, Folder
+  LayoutGrid, Shield, Image, Fingerprint, Code2, ArrowLeftRight, Folder, Search, 
+  GitCompare, Network, FileCode, Table
 } from 'lucide-vue-next'
 import { siteConfig } from '@/config/site'
 import { toolsData, getToolsByCategory } from '@/lib/tools-data'
@@ -137,6 +138,13 @@ const iconMap: Record<string, any> = {
   QrCode,
   IdCard,
   FileJson,
+  Code2,
+  Search,
+  GitCompare,
+  Network,
+  ArrowLeftRight,
+  FileCode,
+  Table,
 }
 
 const categoryIcons: Record<string, any> = {

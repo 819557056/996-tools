@@ -155,6 +155,54 @@ export const toolsData: ToolsData = {
     icon: "FileJson",
   },
 
+  codeGenerator: {
+    key: "codeGenerator",
+    label: "代码生成器",
+    i18nKey: "tools.codeGenerator",
+    description: "将JSON转换为TypeScript、Go、Java、Python、Rust或Protobuf类型定义",
+    badges: ["JSON", "TypeScript", "Go", "Java", "Code Generation"],
+    category: "Development",
+    path: "/tools/code-generator",
+    icon: "Code2",
+    isNew: true,
+  },
+
+  jsonQuery: {
+    key: "jsonQuery",
+    label: "JSON 查询",
+    i18nKey: "tools.jsonQuery",
+    description: "使用JMESPath或JSONPath强大查询语法查询和提取JSON数据",
+    badges: ["JSON", "Query", "JMESPath", "JSONPath"],
+    category: "Development",
+    path: "/tools/json-query",
+    icon: "Search",
+    isNew: true,
+  },
+
+  jsonDiff: {
+    key: "jsonDiff",
+    label: "JSON 对比",
+    i18nKey: "tools.jsonDiff",
+    description: "对比两个JSON文件的差异，高亮显示新增、删除和修改的字段",
+    badges: ["JSON", "Diff", "Compare"],
+    category: "Development",
+    path: "/tools/json-diff",
+    icon: "GitCompare",
+    isNew: true,
+  },
+
+  jsonVisualizer: {
+    key: "jsonVisualizer",
+    label: "JSON 可视化",
+    i18nKey: "tools.jsonVisualizer",
+    description: "将JSON数据可视化为树状图、关系图谱或旭日图，直观理解数据结构",
+    badges: ["JSON", "Visualization", "Tree", "Graph"],
+    category: "Development",
+    path: "/tools/json-visualizer",
+    icon: "Network",
+    isNew: true,
+  },
+
   certificateParser: {
     key: "certificateParser",
     label: "证书解析",
@@ -186,6 +234,42 @@ export const toolsData: ToolsData = {
     category: "pki",
     path: "/tools/certificate-viewer",
     icon: "Watch",
+    isNew: true,
+  },
+
+  formatConverter: {
+    key: "formatConverter",
+    label: "配置文件格式互转",
+    i18nKey: "tools.formatConverter",
+    description: "支持 JSON、YAML、TOML、XML、CSV、INI、Properties 等多种格式之间的互转",
+    badges: ["JSON", "YAML", "TOML", "XML", "CSV", "转换"],
+    category: "Converters",
+    path: "/tools/format-converter",
+    icon: "ArrowLeftRight",
+    isNew: true,
+  },
+
+  yamlTomlEditor: {
+    key: "yamlTomlEditor",
+    label: "YAML/TOML/Properties 编辑器",
+    i18nKey: "tools.yamlTomlEditor",
+    description: "带实时语法校验的配置文件编辑器，支持 YAML、TOML 和 Properties 格式，自动缩进检测和格式化",
+    badges: ["YAML", "TOML", "Properties", "校验", "格式化"],
+    category: "Development",
+    path: "/tools/yaml-toml-editor",
+    icon: "FileCode",
+    isNew: true,
+  },
+
+  csvAdvanced: {
+    key: "csvAdvanced",
+    label: "CSV 高级操作",
+    i18nKey: "tools.csvAdvanced",
+    description: "CSV 分割、列提取重排、转 SQL 语句等高级操作",
+    badges: ["CSV", "SQL", "数据处理"],
+    category: "Development",
+    path: "/tools/csv-advanced",
+    icon: "Table",
     isNew: true,
   },
   

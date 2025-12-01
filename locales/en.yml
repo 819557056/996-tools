@@ -145,6 +145,59 @@ tools:
     format: 'Format'
     minify: 'Minify'
     indent: 'Indent'
+
+  codeGenerator:
+    title: 'Code Generator'
+    description: 'Convert JSON to TypeScript, Go, Java, Python, Rust or Protobuf type definitions'
+    targetLanguage: 'Target Language'
+    typeName: 'Type Name'
+    generate: 'Generate'
+    copy: 'Copy'
+    inputJson: 'Input JSON'
+    outputCode: 'Generated Code'
+    example: 'Example'
+    clear: 'Clear'
+
+  jsonQuery:
+    title: 'JSON Query'
+    description: 'Query and extract JSON data using powerful JMESPath or JSONPath syntax'
+    queryEngine: 'Query Engine'
+    queryExpression: 'Query Expression'
+    query: 'Query'
+    inputJson: 'Input JSON Data'
+    result: 'Query Result'
+    history: 'Query History'
+    syntax: 'Syntax Help'
+    examples: 'Quick Examples'
+    clearHistory: 'Clear History'
+
+  jsonDiff:
+    title: 'JSON Diff'
+    description: 'Compare two JSON files and highlight added, removed and modified fields'
+    compare: 'Compare'
+    formatLeft: 'Format Left'
+    formatRight: 'Format Right'
+    swap: 'Swap'
+    copyToRight: 'Copy to Right'
+    copyToLeft: 'Copy to Left'
+    leftJson: 'Original JSON (Left)'
+    rightJson: 'Compare JSON (Right)'
+    added: 'Added'
+    modified: 'Modified'
+    removed: 'Removed'
+
+  jsonVisualizer:
+    title: 'JSON Visualizer'
+    description: 'Visualize JSON data as tree, graph or sunburst chart for intuitive understanding'
+    visualizationType: 'Visualization Type'
+    tree: 'Tree'
+    graph: 'Graph'
+    sunburst: 'Sunburst'
+    visualize: 'Visualize'
+    export: 'Export'
+    inputJson: 'JSON Data'
+    visualizationView: 'Visualization View'
+    tips: 'Tips'
     
   qrcode:
     title: 'QR Code Generator'
@@ -267,6 +320,18 @@ tools:
     input: 'Input'
     output: 'Output'
     action: 'Execute'
+
+  formatConverter:
+    title: 'Format Converter'
+    description: 'Convert between JSON, YAML, TOML, XML, CSV, INI, Properties and more'
+
+  yamlTomlEditor:
+    title: 'YAML/TOML/Properties Editor'
+    description: 'Configuration file editor with real-time syntax validation for YAML, TOML and Properties formats, with indentation detection and formatting'
+
+  csvAdvanced:
+    title: 'CSV Advanced Tools'
+    description: 'CSV split, column extraction, SQL generation and more'
 
   sm2tool:
     title: 'SM2 Tool'

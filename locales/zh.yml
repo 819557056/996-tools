@@ -145,6 +145,59 @@ tools:
     format: '格式化'
     minify: '压缩'
     indent: '缩进'
+
+  codeGenerator:
+    title: '代码生成器'
+    description: '将 JSON 转换为 TypeScript、Go、Java、Python、Rust 或 Protobuf 类型定义'
+    targetLanguage: '目标语言'
+    typeName: '类型名称'
+    generate: '生成'
+    copy: '复制'
+    inputJson: '输入 JSON'
+    outputCode: '生成代码'
+    example: '示例'
+    clear: '清空'
+
+  jsonQuery:
+    title: 'JSON 查询'
+    description: '使用 JMESPath 或 JSONPath 强大查询语法查询和提取 JSON 数据'
+    queryEngine: '查询引擎'
+    queryExpression: '查询表达式'
+    query: '查询'
+    inputJson: '输入 JSON 数据'
+    result: '查询结果'
+    history: '查询历史'
+    syntax: '语法说明'
+    examples: '快速示例'
+    clearHistory: '清空历史'
+
+  jsonDiff:
+    title: 'JSON 对比'
+    description: '对比两个 JSON 文件的差异，高亮显示新增、删除和修改的字段'
+    compare: '对比'
+    formatLeft: '格式化左侧'
+    formatRight: '格式化右侧'
+    swap: '交换'
+    copyToRight: '复制到右'
+    copyToLeft: '复制到左'
+    leftJson: '原始 JSON (左侧)'
+    rightJson: '对比 JSON (右侧)'
+    added: '新增'
+    modified: '修改'
+    removed: '删除'
+
+  jsonVisualizer:
+    title: 'JSON 可视化'
+    description: '将 JSON 数据可视化为树状图、关系图谱或旭日图，直观理解数据结构'
+    visualizationType: '可视化类型'
+    tree: '树状图'
+    graph: '关系图谱'
+    sunburst: '旭日图'
+    visualize: '可视化'
+    export: '导出'
+    inputJson: 'JSON 数据'
+    visualizationView: '可视化视图'
+    tips: '提示'
     
   qrcode:
     title: '二维码生成器'
@@ -279,6 +332,18 @@ tools:
   digitalEnvelope:
     title: '数字信封'
     description: '基于GM/T 0010标准的数字信封生成与解密'
+
+  formatConverter:
+    title: '文件格式互转'
+    description: '支持 JSON、YAML、TOML、XML、CSV、INI、Properties 等多种格式之间的互转'
+
+  yamlTomlEditor:
+    title: 'YAML/TOML/Properties 编辑器'
+    description: '带实时语法校验的配置文件编辑器，支持 YAML、TOML 和 Properties 格式，自动缩进检测和格式化'
+
+  csvAdvanced:
+    title: 'CSV 高级操作'
+    description: 'CSV 分割、列提取重排、转 SQL 语句等高级操作'
 
 common:
   copy: '复制'
