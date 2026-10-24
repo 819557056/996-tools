@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import EncodedOutput from "@/components/crypto/EncodedOutput.vue";
+import EncodedInputFormat from "@/components/crypto/EncodedInputFormat.vue";
 import { Copy } from 'lucide-vue-next';
 import useSm2Tool from './useSm2Tool';
 import BaseCard from '@/components/ui/BaseCard.vue';
 import BaseButton from '@/components/ui/BaseButton.vue';
-import BaseInput from '@/components/ui/BaseInput.vue';
 import BaseTextarea from '@/components/ui/BaseTextarea.vue';
 import BaseLabel from '@/components/ui/BaseLabel.vue';
-import BaseSelect from '@/components/ui/BaseSelect.vue';
 import { useToast } from '@/composables/useToast';
 
 const {
@@ -19,11 +18,13 @@ const {
   encryptInput,
   encryptOutput,
   decryptInput,
+  decryptEncoding,
   decryptOutput,
   signInput,
   signOutput,
   verifyMessage,
   verifySignature,
+  verifyEncoding,
   verifyResult,
   doEncrypt,
   doDecrypt,
@@ -31,8 +32,6 @@ const {
   doVerify,
   copyToDecrypt,
   copyToVerify,
-  modeOptions,
-  cipherModeOptions,
 } = useSm2Tool();
 
 const toast = useToast();
@@ -87,6 +86,7 @@ const copyToClipboard = async (text: string) => {
             class="font-mono text-sm"
             :rows="3"
           />
+          <EncodedOutput v-if="publicKey" :value="publicKey" label="公钥" kind="sm2-public" collapsible :rows="3" />
         </div>
         <div class="space-y-3">
           <BaseLabel>私钥 (Hex)</BaseLabel>
@@ -96,6 +96,7 @@ const copyToClipboard = async (text: string) => {
             class="font-mono text-sm"
             :rows="3"
           />
+          <EncodedOutput v-if="privateKey" :value="privateKey" label="私钥" kind="sm2-private" collapsible :rows="3" />
         </div>
       </div>
 
@@ -127,21 +128,10 @@ const copyToClipboard = async (text: string) => {
         </div>
         <div class="space-y-4">
           <div class="space-y-2">
-            <div class="flex justify-between items-center">
-              <BaseLabel>加密结果 (Hex)</BaseLabel>
-              <div class="flex gap-2">
-                <BaseButton size="sm" variant="ghost" @click="copyToClipboard(encryptOutput)">
-                  <Copy class="w-4 h-4 mr-1" /> 复制
-                </BaseButton>
-                <BaseButton size="sm" variant="outline" @click="copyToDecrypt">去解密</BaseButton>
-              </div>
-            </div>
-            <BaseTextarea
-              readonly
-              :model-value="encryptOutput"
-              class="bg-muted font-mono text-sm"
-              :rows="8"
-            />
+            <EncodedOutput :value="encryptOutput.startsWith('错误:') ? '' : encryptOutput" label="加密结果" kind="ciphertext" :rows="8">
+              <template #actions><BaseButton size="sm" variant="outline" @click="copyToDecrypt">去解密</BaseButton></template>
+            </EncodedOutput>
+            <p v-if="encryptOutput.startsWith('错误:')" role="alert" class="text-red-600 text-sm">{{ encryptOutput }}</p>
           </div>
         </div>
       </div>
@@ -163,7 +153,8 @@ const copyToClipboard = async (text: string) => {
             </div>
           </div>
           <div class="space-y-2">
-            <BaseLabel>密文 (Hex)</BaseLabel>
+            <BaseLabel>密文 (Hex / Base64 / BEGIN-END)</BaseLabel>
+            <EncodedInputFormat v-model="decryptEncoding" />
             <BaseTextarea
               v-model="decryptInput"
               placeholder="请输入需要解密的密文..."
@@ -206,21 +197,10 @@ const copyToClipboard = async (text: string) => {
         </div>
         <div class="space-y-4">
           <div class="space-y-2">
-            <div class="flex justify-between items-center">
-              <BaseLabel>签名结果 (Hex)</BaseLabel>
-              <div class="flex gap-2">
-                <BaseButton size="sm" variant="ghost" @click="copyToClipboard(signOutput)">
-                  <Copy class="w-4 h-4 mr-1" /> 复制
-                </BaseButton>
-                <BaseButton size="sm" variant="outline" @click="copyToVerify">去验签</BaseButton>
-              </div>
-            </div>
-            <BaseTextarea
-              readonly
-              :model-value="signOutput"
-              class="bg-muted font-mono text-sm"
-              :rows="8"
-            />
+            <EncodedOutput :value="signOutput.startsWith('错误:') ? '' : signOutput" label="签名结果" kind="signature" :rows="8">
+              <template #actions><BaseButton size="sm" variant="outline" @click="copyToVerify">去验签</BaseButton></template>
+            </EncodedOutput>
+            <p v-if="signOutput.startsWith('错误:')" role="alert" class="text-red-600 text-sm">{{ signOutput }}</p>
           </div>
         </div>
       </div>
@@ -237,7 +217,8 @@ const copyToClipboard = async (text: string) => {
             />
           </div>
           <div class="space-y-2">
-            <BaseLabel>签名值 (Hex)</BaseLabel>
+            <BaseLabel>签名值 (Hex / Base64 / BEGIN-END)</BaseLabel>
+            <EncodedInputFormat v-model="verifyEncoding" />
             <BaseTextarea
               v-model="verifySignature"
               placeholder="请输入签名值..."

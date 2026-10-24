@@ -1,6 +1,6 @@
 import { ref, computed, watch } from 'vue'
 import { useToast } from '@/composables/useToast'
-import { convertFormat, formatInput, validateFormat } from './converters'
+import { convertFormat, formatInput } from './converters'
 import type { FormatType, FormatOption, QuickConversion } from './types'
 
 export function useFormatConverter() {

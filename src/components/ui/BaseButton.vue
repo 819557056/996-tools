@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils'
 
 interface Props {
   variant?: 'default' | 'outline' | 'ghost' | 'destructive'
-  size?: 'sm' | 'md' | 'lg' | 'icon'
+  size?: 'xs' | 'sm' | 'md' | 'default' | 'lg' | 'icon'
   disabled?: boolean
 }
 
@@ -39,6 +39,8 @@ const buttonClasses = computed(() => {
   }
   
   const sizeClasses = {
+    xs: 'h-7 rounded px-2 text-xs',
+    default: 'h-10 px-4 py-2',
     sm: 'h-9 rounded-md px-3',
     md: 'h-10 px-4 py-2',
     lg: 'h-11 rounded-md px-8',

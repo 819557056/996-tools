@@ -13,11 +13,11 @@
           </p>
         </div>
         <div class="flex gap-2">
-          
-          <BaseButton 
-            variant="outline" 
+
+          <BaseButton
+            variant="outline"
             size="sm"
-            @click="clearAll" 
+            @click="clearAll"
             :disabled="!input && !certificateInfo"
           >
             <X class="mr-2 h-4 w-4" />
@@ -38,10 +38,10 @@
             <input v-model="inputMode" type="radio" value="file" class="mr-2" />
             <span>文件上传</span>
           </label>
-          
+
           <div class="ml-auto flex items-center gap-2">
             <span class="text-muted-foreground">行业模板:</span>
-            <select 
+            <select
               v-model="selectedIndustry"
               class="bg-background border border-border rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
             >
@@ -158,7 +158,7 @@
 
         <!-- Tab Content -->
         <div class="flex-1 overflow-hidden relative">
-          
+
           <!-- 常规信息 -->
           <div v-if="activeTab === 'general'" class="p-6 overflow-y-auto h-full space-y-6">
             <div class="grid md:grid-cols-2 gap-6">
@@ -239,8 +239,8 @@
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-border">
-                  <tr 
-                    v-for="(item, idx) in detailItems" 
+                  <tr
+                    v-for="(item, idx) in detailItems"
                     :key="idx"
                     @click="selectedDetail = item"
                     class="cursor-pointer hover:bg-muted/50 transition-colors"
@@ -264,10 +264,10 @@
                 <span class="text-xs font-semibold text-muted-foreground">
                   {{ selectedDetail?.label || '选择一项查看详情' }}
                 </span>
-                <BaseButton 
-                  v-if="selectedDetail" 
-                  variant="ghost" 
-                  size="sm" 
+                <BaseButton
+                  v-if="selectedDetail"
+                  variant="ghost"
+                  size="sm"
                   @click="copyText(selectedDetail.fullValue, selectedDetail.label)"
                 >
                   <Clipboard class="h-3 w-3 mr-1" />
@@ -284,24 +284,7 @@
 
           <!-- 原始数据 -->
           <div v-else-if="activeTab === 'raw'" class="p-6 overflow-y-auto h-full space-y-6">
-            <div>
-              <div class="flex justify-between items-center mb-2">
-                <h3 class="text-sm font-semibold">PEM 格式</h3>
-                <BaseButton variant="outline" size="sm" @click="copyText(certificateInfo.raw.pem, 'PEM')">
-                  <Clipboard class="h-3 w-3 mr-1" /> 复制
-                </BaseButton>
-              </div>
-              <BaseTextarea :value="certificateInfo.raw.pem" readonly :rows="12" class="font-mono text-xs" />
-            </div>
-            <div>
-              <div class="flex justify-between items-center mb-2">
-                <h3 class="text-sm font-semibold">DER (Hex)</h3>
-                <BaseButton variant="outline" size="sm" @click="copyText(certificateInfo.raw.der, 'DER')">
-                  <Clipboard class="h-3 w-3 mr-1" /> 复制
-                </BaseButton>
-              </div>
-              <BaseTextarea :value="certificateInfo.raw.der" readonly :rows="8" class="font-mono text-xs" />
-            </div>
+            <EncodedOutput :value="certificateInfo.raw.der" label="证书原始数据" kind="certificate" :rows="14" />
           </div>
 
         </div>
@@ -311,9 +294,10 @@
 </template>
 
 <script setup lang="ts">
+import EncodedOutput from "@/components/crypto/EncodedOutput.vue";
 import { ref } from 'vue'
-import { 
-  FileText, Upload, BookOpen, X, AlertCircle, CheckCircle, Clipboard, RefreshCw 
+import {
+  FileText, Upload, X, AlertCircle, CheckCircle, Clipboard, RefreshCw
 } from 'lucide-vue-next'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
@@ -334,7 +318,6 @@ const {
   isSM2,
   detailItems,
   parseCert,
-  loadExample,
   handleFileUpload,
   clearAll,
   copyText,

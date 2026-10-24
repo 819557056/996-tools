@@ -70,6 +70,7 @@ import {
   Star,
   Watch,
   Shield,
+  FileSignature, Hash,
 } from 'lucide-vue-next'
 import { cn } from '@/lib/utils'
 import type { Tool } from '@/lib/tools-data'
@@ -88,6 +89,7 @@ const { toggleFavorite, isFavorite } = favoritesStore
 
 const iconComponent = computed(() => {
   const icons: Record<string, any> = {
+    FileSignature, Hash, Shield,
     Text,
     Lock,
     Binary,

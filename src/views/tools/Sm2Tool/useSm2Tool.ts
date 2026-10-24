@@ -1,18 +1,11 @@
 import { ref } from 'vue';
+import { materialToHex, type InputEncoding } from '@/utils/crypto/material-format';
 import { sm2 } from 'sm-crypto';
 
 export default function useSm2Tool() {
   // 密钥管理
   const publicKey = ref('');
   const privateKey = ref('');
-
-  // GM/T 0010 OIDs
-  const OID = {
-    envelopedData: '1.2.156.10197.6.1.4.2.3',
-    data: '1.2.156.10197.6.1.4.2.1',
-    sm2: '1.2.156.10197.1.301',
-    sm4cbc: '1.2.156.10197.1.104',
-  };
 
   // 生成密钥对
   function generateKeyPair() {
@@ -23,12 +16,13 @@ export default function useSm2Tool() {
 
   // 加密/解密
   const operationMode = ref<'encrypt' | 'decrypt' | 'sign' | 'verify'>('encrypt');
-  const cipherMode = ref(1); // 1: C1C3C2 (新标准), 0: C1C2C3 (旧标准)
+  const cipherMode = ref<0 | 1>(1); // 1: C1C3C2 (新标准), 0: C1C2C3 (旧标准)
 
   const encryptInput = ref('Hello, SM2!');
   const encryptOutput = ref('');
 
   const decryptInput = ref('');
+  const decryptEncoding = ref<InputEncoding>('auto');
   const decryptOutput = ref('');
 
   const signInput = ref('Message to sign');
@@ -36,6 +30,7 @@ export default function useSm2Tool() {
 
   const verifyMessage = ref('');
   const verifySignature = ref('');
+  const verifyEncoding = ref<InputEncoding>('auto');
   const verifyResult = ref<boolean | null>(null);
 
   // 执行加密
@@ -67,7 +62,7 @@ export default function useSm2Tool() {
         decryptOutput.value = '错误: 请输入要解密的密文';
         return;
       }
-      decryptOutput.value = sm2.doDecrypt(decryptInput.value.trim(), privateKey.value.trim(), cipherMode.value);
+      decryptOutput.value = sm2.doDecrypt(materialToHex(decryptInput.value, decryptEncoding.value), privateKey.value.trim(), cipherMode.value);
     }
     catch (error: unknown) {
       decryptOutput.value = `错误: ${(error as Error).message}`;
@@ -111,7 +106,7 @@ export default function useSm2Tool() {
       // 对所有输入进行 trim 处理
       verifyResult.value = sm2.doVerifySignature(
         verifyMessage.value.trim(),
-        verifySignature.value.trim(),
+        materialToHex(verifySignature.value, verifyEncoding.value),
         publicKey.value.trim(),
       );
     }
@@ -124,6 +119,7 @@ export default function useSm2Tool() {
   // 复制加密结果到解密输入
   function copyToDecrypt() {
     decryptInput.value = encryptOutput.value;
+    decryptEncoding.value = 'hex';
     operationMode.value = 'decrypt';
   }
 
@@ -131,6 +127,7 @@ export default function useSm2Tool() {
   function copyToVerify() {
     verifyMessage.value = signInput.value;
     verifySignature.value = signOutput.value;
+    verifyEncoding.value = 'hex';
     operationMode.value = 'verify';
   }
 
@@ -155,11 +152,13 @@ export default function useSm2Tool() {
     encryptInput,
     encryptOutput,
     decryptInput,
+    decryptEncoding,
     decryptOutput,
     signInput,
     signOutput,
     verifyMessage,
     verifySignature,
+    verifyEncoding,
     verifyResult,
     doEncrypt,
     doDecrypt,

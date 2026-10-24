@@ -22,7 +22,7 @@ interface Props {
   rows?: number
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   placeholder: '',
   disabled: false,
   readonly: false,

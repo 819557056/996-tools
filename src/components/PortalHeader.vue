@@ -149,7 +149,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { RouterLink, useRoute } from 'vue-router'
+import { RouterLink } from 'vue-router'
 import { Sun, Moon, Search as SearchIcon, Menu, X, User } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { siteConfig } from '@/config/site'
@@ -161,7 +161,6 @@ import SearchCommand from './SearchCommand.vue'
 import Logo from './Logo.vue'
 
 const { t, locale } = useI18n()
-const route = useRoute()
 const themeStore = useThemeStore()
 const { actualTheme } = storeToRefs(themeStore)
 const { toggleTheme } = themeStore
@@ -187,4 +186,6 @@ const handleUserAction = () => {
   closeMobileMenu()
 }
 </script>
+
+
 

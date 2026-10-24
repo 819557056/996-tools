@@ -112,7 +112,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { nanoid, customAlphabet } from 'nanoid'
+import { customAlphabet } from 'nanoid'
 import { numbers, lowercase, uppercase } from 'nanoid-dictionary'
 import { RefreshCw, Clipboard } from 'lucide-vue-next'
 import BaseCard from '@/components/ui/BaseCard.vue'

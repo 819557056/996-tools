@@ -1,4 +1,3 @@
-import ini from 'ini'
 import type { Converter } from '../types'
 
 // 将嵌套对象扁平化为 key.subkey.subsubkey 格式

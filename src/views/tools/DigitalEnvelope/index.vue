@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import EncodedOutput from "@/components/crypto/EncodedOutput.vue";
+import EncodedInputFormat from "@/components/crypto/EncodedInputFormat.vue";
 import { Copy } from 'lucide-vue-next';
 import useDigitalEnvelope from './useDigitalEnvelope';
 import BaseCard from '@/components/ui/BaseCard.vue';
@@ -16,6 +18,7 @@ const {
   generateEnvelope,
   envelopeDecryptPrivateKey,
   envelopeDecryptInput,
+  envelopeEncoding,
   envelopeDecryptResult,
   openEnvelope,
 } = useDigitalEnvelope();
@@ -92,62 +95,13 @@ const copyToClipboard = async (text: string) => {
 
           <div v-if="envelopeResult" class="mt-8 space-y-6 border-t pt-6">
             <div class="grid gap-4">
-              <div class="space-y-2">
-                <div class="flex justify-between items-center">
-                  <BaseLabel>GM/T 0010 数字信封 (ASN.1 DER Hex)</BaseLabel>
-                  <BaseButton size="sm" variant="ghost" @click="copyToClipboard(envelopeResult.asn1)">
-                    <Copy class="w-4 h-4" />
-                  </BaseButton>
-                </div>
-                <BaseTextarea
-                  readonly
-                  :model-value="envelopeResult.asn1"
-                  class="bg-muted font-mono text-sm"
-                  :rows="6"
-                />
-              </div>
+              <EncodedOutput :value="envelopeResult.asn1" label="GM/T 0010 数字信封" kind="envelope" :rows="6" />
 
-              <div class="space-y-2">
-                <div class="flex justify-between items-center">
-                  <BaseLabel>1. 会话密钥 (SM4 Key)</BaseLabel>
-                  <BaseButton size="sm" variant="ghost" @click="copyToClipboard(envelopeResult.sessionKey)">
-                    <Copy class="w-4 h-4" />
-                  </BaseButton>
-                </div>
-                <div class="p-3 bg-muted rounded font-mono text-sm break-all">
-                  {{ envelopeResult.sessionKey }}
-                </div>
-              </div>
+              <EncodedOutput :value="envelopeResult.sessionKey" label="SM4 会话密钥" kind="sm4-key" :rows="2" />
 
-              <div class="space-y-2">
-                <div class="flex justify-between items-center">
-                  <BaseLabel>2. 加密后的会话密钥 (Encrypted Session Key)</BaseLabel>
-                  <BaseButton size="sm" variant="ghost" @click="copyToClipboard(envelopeResult.encryptedSessionKey)">
-                    <Copy class="w-4 h-4" />
-                  </BaseButton>
-                </div>
-                <BaseTextarea
-                  readonly
-                  :model-value="envelopeResult.encryptedSessionKey"
-                  class="bg-muted font-mono text-sm"
-                  :rows="2"
-                />
-              </div>
+              <EncodedOutput :value="envelopeResult.encryptedSessionKey" label="加密后的会话密钥" kind="ciphertext" :rows="2" />
 
-              <div class="space-y-2">
-                <div class="flex justify-between items-center">
-                  <BaseLabel>3. 加密后的数据 (Encrypted Data)</BaseLabel>
-                  <BaseButton size="sm" variant="ghost" @click="copyToClipboard(envelopeResult.encryptedData)">
-                    <Copy class="w-4 h-4" />
-                  </BaseButton>
-                </div>
-                <BaseTextarea
-                  readonly
-                  :model-value="envelopeResult.encryptedData"
-                  class="bg-muted font-mono text-sm"
-                  :rows="4"
-                />
-              </div>
+              <EncodedOutput :value="envelopeResult.encryptedData" label="加密后的数据" kind="ciphertext" :rows="4" />
             </div>
           </div>
         </div>
@@ -175,10 +129,11 @@ const copyToClipboard = async (text: string) => {
           </div>
 
           <div class="space-y-2">
-            <BaseLabel>数字信封数据 (ASN.1 Hex)</BaseLabel>
+            <BaseLabel>数字信封数据 (Hex / Base64 / BEGIN-END)</BaseLabel>
+            <EncodedInputFormat v-model="envelopeEncoding" />
             <BaseTextarea
               v-model="envelopeDecryptInput"
-              placeholder="请输入 GM/T 0010 格式的 ASN.1 Hex 字符串..."
+              placeholder="请输入 GM/T 0010 数字信封..."
               class="font-mono text-sm"
               :rows="6"
             />
@@ -188,17 +143,7 @@ const copyToClipboard = async (text: string) => {
 
           <div v-if="envelopeDecryptResult" class="mt-8 space-y-6 border-t pt-6">
             <div class="grid gap-4">
-              <div class="space-y-2">
-                <div class="flex justify-between items-center">
-                  <BaseLabel>解密出的会话密钥 (SM4 Key)</BaseLabel>
-                  <BaseButton size="sm" variant="ghost" @click="copyToClipboard(envelopeDecryptResult.sessionKey)">
-                    <Copy class="w-4 h-4" />
-                  </BaseButton>
-                </div>
-                <div class="p-3 bg-muted rounded font-mono text-sm break-all">
-                  {{ envelopeDecryptResult.sessionKey }}
-                </div>
-              </div>
+              <EncodedOutput :value="envelopeDecryptResult.sessionKey" label="SM4 会话密钥" kind="sm4-key" :rows="2" />
 
               <div class="space-y-2">
                 <div class="flex justify-between items-center">

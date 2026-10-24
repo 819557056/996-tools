@@ -3,18 +3,20 @@ import { ref } from 'vue'
 export interface ToastOptions {
   title?: string
   description?: string
-  variant?: 'success' | 'error' | 'warning' | 'info'
+  variant?: 'success' | 'error' | 'warning' | 'info' | 'destructive' | 'default'
   duration?: number
 }
 
-const toasts = ref<Array<ToastOptions & { id: number; visible: boolean }>>([])
+type ToastItem = Omit<ToastOptions, 'variant'> & { variant?: 'success' | 'error' | 'warning' | 'info'; id: number; visible: boolean }
+const toasts = ref<ToastItem[]>([])
 let nextId = 0
 
 export function useToast() {
   function toast(options: ToastOptions | string) {
     const opts = typeof options === 'string' ? { description: options } : options
     const id = nextId++
-    const toastItem = { ...opts, id, visible: true }
+    const variant = opts.variant === 'destructive' ? 'error' : opts.variant === 'default' ? 'info' : opts.variant
+    const toastItem: ToastItem = { ...opts, variant, id, visible: true }
     toasts.value.push(toastItem)
 
     const duration = opts.duration ?? 3000

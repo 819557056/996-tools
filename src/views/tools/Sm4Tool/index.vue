@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import EncodedOutput from '@/components/crypto/EncodedOutput.vue';
+import EncodedInputFormat from '@/components/crypto/EncodedInputFormat.vue';
 import { Copy } from 'lucide-vue-next';
 import useSm4Tool from './useSm4Tool';
 import BaseCard from '@/components/ui/BaseCard.vue';
@@ -16,6 +18,7 @@ const {
   encryptIv,
   encryptResult,
   decryptInput,
+  decryptEncoding,
   decryptKey,
   decryptMode,
   decryptIv,
@@ -61,6 +64,7 @@ const copyToClipboard = async (text: string) => {
                 生成随机密钥
               </BaseButton>
             </div>
+            <EncodedOutput :value="encryptKey" label="SM4 密钥" kind="sm4-key" collapsible :rows="2" />
           </div>
           
           <div class="space-y-2">
@@ -86,6 +90,7 @@ const copyToClipboard = async (text: string) => {
                        R
                     </BaseButton>
                  </div>
+                 <EncodedOutput :value="encryptIv" label="初始向量 IV" kind="iv" collapsible :rows="2" />
                </div>
              </div>
           </div>
@@ -101,23 +106,14 @@ const copyToClipboard = async (text: string) => {
         </div>
 
         <div class="space-y-2">
-          <div class="flex justify-between items-center">
-            <BaseLabel>密文 (Hex):</BaseLabel>
-            <div class="flex gap-2">
-              <BaseButton size="sm" variant="ghost" @click="copyToClipboard(encryptResult)">
-                <Copy class="w-4 h-4 mr-1" /> 复制
-              </BaseButton>
-              <BaseButton size="sm" variant="outline" @click="copyToDecrypt">
+          <p v-if="encryptResult.startsWith('错误:')" role="alert" class="text-sm text-red-600">{{ encryptResult }}</p>
+          <EncodedOutput :value="encryptResult.startsWith('错误:') ? '' : encryptResult" label="密文" kind="ciphertext" :rows="3">
+            <template #actions>
+              <BaseButton size="sm" variant="outline" :disabled="!encryptResult || encryptResult.startsWith('错误:')" @click="copyToDecrypt">
                 复制到解密
               </BaseButton>
-            </div>
-          </div>
-          <BaseTextarea
-            readonly
-            :model-value="encryptResult"
-            class="bg-muted font-mono text-sm"
-            :rows="3"
-          />
+            </template>
+          </EncodedOutput>
         </div>
       </div>
 
@@ -159,7 +155,8 @@ const copyToClipboard = async (text: string) => {
         </div>
 
         <div class="space-y-2 mb-4">
-          <BaseLabel>密文 (Hex):</BaseLabel>
+          <BaseLabel>密文 (Hex / Base64 / BEGIN-END):</BaseLabel>
+          <EncodedInputFormat v-model="decryptEncoding" />
           <BaseTextarea
             v-model="decryptInput"
             placeholder="请输入要解密的密文"

@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import DashboardLayout from '../layouts/DashboardLayout.vue'
 import HomeView from '../views/HomeView.vue'
+import { localPkiTools } from '../lib/local-pki-tools'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -9,6 +10,14 @@ const router = createRouter({
       path: '/',
       component: DashboardLayout,
       children: [
+        { path: '/tools/pdf-verify', name: 'pdf-verify', component: () => import('../views/tools/PdfVerify/index.vue') },
+        { path: '/tools/pdf-seal', name: 'pdf-seal', redirect: '/tools/pdf-verify' },
+        { path: '/tools/offline-revocation', name: 'offline-revocation', component: () => import('../views/tools/OfflineRevocation/index.vue') },
+        ...['ofd-seal', 'signature-debugger', 'seal-generator'].map(path => ({ path: `/tools/${path}`, redirect: '/' })),
+        { path: '/tools/pki-workbench', name: 'pki-workbench', redirect: '/tools/csr-create' },
+        ...localPkiTools.map(tool => ({ path: `/tools/${tool.mode}`, name: tool.mode, component: () => import('../views/tools/PkiTools/index.vue'), props: { mode: tool.mode } })),
+        { path: '/tools/file-digest', name: 'file-digest', component: () => import('../views/tools/FileDigest/index.vue') },
+        { path: '/tools/oid-explorer', name: 'oid-explorer', component: () => import('../views/tools/OidExplorer/index.vue') },
         {
           path: '',
           name: 'home',
@@ -104,6 +113,16 @@ const router = createRouter({
           component: () => import('../views/tools/Sm2Tool/index.vue'),
         },
         {
+          path: '/tools/sm2-encrypt',
+          name: 'sm2-encrypt',
+          component: () => import('../views/tools/Sm2Encrypt/index.vue'),
+        },
+        {
+          path: '/tools/sm2-sign',
+          name: 'sm2-sign',
+          component: () => import('../views/tools/Sm2Sign/index.vue'),
+        },
+        {
           path: '/tools/sm4-tool',
           name: 'sm4-tool',
           component: () => import('../views/tools/Sm4Tool/index.vue'),
@@ -131,7 +150,7 @@ const router = createRouter({
       ],
     },
   ],
-  scrollBehavior(to, from, savedPosition) {
+  scrollBehavior(_to, _from, savedPosition) {
     if (savedPosition) {
       return savedPosition
     } else {

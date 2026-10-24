@@ -107,8 +107,8 @@ import { RouterLink, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { 
   Sun, Moon, Text, Lock, Binary, Link as LinkIcon, QrCode, IdCard, FileJson, ChevronRight,
-  LayoutGrid, Shield, Image, Fingerprint, Code2, ArrowLeftRight, Folder, Search, 
-  GitCompare, Network, FileCode, Table
+  Shield, Image, Fingerprint, Code2, ArrowLeftRight, Folder, Search,
+  GitCompare, Network, FileCode, Table, FileSignature, Hash,
 } from 'lucide-vue-next'
 import { siteConfig } from '@/config/site'
 import { toolsData, getToolsByCategory } from '@/lib/tools-data'
@@ -131,6 +131,7 @@ const { toggleTheme } = themeStore
 
 // 图标映射
 const iconMap: Record<string, any> = {
+  Hash, FileSignature, Shield,
   Text,
   Lock,
   Binary,
@@ -148,6 +149,7 @@ const iconMap: Record<string, any> = {
 }
 
 const categoryIcons: Record<string, any> = {
+  Document_Tools: FileSignature,
   Converters: ArrowLeftRight,
   pki: Shield,
   Encryption_Tools: Lock,

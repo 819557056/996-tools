@@ -91,7 +91,7 @@ export function useCsvAdvanced() {
         columns: headers 
       }).length
       
-      rows.forEach((row, index) => {
+      rows.forEach((row) => {
         const rowCsv = Papa.unparse([row], { header: false })
         const rowSize = rowCsv.length
         
@@ -139,7 +139,6 @@ export function useCsvAdvanced() {
     
     // 创建新的列映射
     const newHeaders = sorted.map(s => s.newName || s.column)
-    const columnMap = sorted.map(s => s.column)
     
     // 提取数据
     const extracted = csvData.value.rows.map(row => {

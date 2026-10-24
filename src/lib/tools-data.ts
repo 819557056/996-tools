@@ -1,7 +1,9 @@
+import { localPkiTools } from './local-pki-tools'
+
 export type Tool = {
-  key: string // Added key
+  key: string
   label: string
-  i18nKey: string // Added i18n key
+  i18nKey: string
   description: string
   badges: string[]
   category: string
@@ -20,6 +22,11 @@ export type ToolsCategory = {
 }
 
 export const toolsData: ToolsData = {
+  pdfVerify: {"key":"pdfVerify","label":"PDF 本地验签","i18nKey":"tools.pdfVerify","description":"离线检查 PDF 签名、摘要、证书及签名覆盖范围","badges":["Local"],"category":"Document_Tools","path":"/tools/pdf-verify","icon":"FileSignature","isNew":true},
+  offlineRevocation: {"key":"offlineRevocation","label":"OCSP / CRL 离线工具","i18nKey":"tools.offlineRevocation","description":"生成 OCSP 请求和测试响应，离线校验响应及 CRL","badges":["Local"],"category":"pki","path":"/tools/offline-revocation","icon":"Shield","isNew":true},
+  ...Object.fromEntries(localPkiTools.map(tool => [tool.key, { key: tool.key, label: tool.title, i18nKey: `tools.${tool.key}`, description: tool.description, badges: ['Local'], category: 'pki', path: `/tools/${tool.mode}`, icon: tool.icon, isNew: true }])),
+  fileDigest: {"key":"fileDigest","label":"文件摘要","i18nKey":"tools.fileDigest","description":"本地分块计算 MD5、SHA-1、SHA-256 和 SM3","badges":["Local"],"category":"Encryption_Tools","path":"/tools/file-digest","icon":"Hash","isNew":true},
+  oidExplorer: {"key":"oidExplorer","label":"OID 查询","i18nKey":"tools.oidExplorer","description":"按 OID、名称、分类查找并查看上级节点","badges":["Local"],"category":"pki","path":"/tools/oid-explorer","icon":"Search","isNew":true},
   transcoding: {
     key: "transcoding",
     label: "编码转换",
@@ -52,6 +59,28 @@ export const toolsData: ToolsData = {
     category: "Encryption_Tools",
     path: "/tools/hash-text",
     icon: "Hash",
+    isNew: true,
+  },
+  sm2Encrypt: {
+    key: "sm2Encrypt",
+    label: "SM2 加解密",
+    i18nKey: "tools.sm2Encrypt",
+    description: "SM2 加密解密工具，支持 C1C3C2/C1C2C3 模式，支持 Hex 和 ASN.1 DER 输出",
+    badges: ["SM2", "加密", "解密", "ASN.1"],
+    category: "Encryption_Tools",
+    path: "/tools/sm2-encrypt",
+    icon: "Lock",
+    isNew: true,
+  },
+  sm2Sign: {
+    key: "sm2Sign",
+    label: "SM2 签名验签",
+    i18nKey: "tools.sm2Sign",
+    description: "SM2 签名验签工具，支持 Hex 和 ASN.1 DER 格式",
+    badges: ["SM2", "签名", "验签", "ASN.1"],
+    category: "Encryption_Tools",
+    path: "/tools/sm2-sign",
+    icon: "FileSignature",
     isNew: true,
   },
   sm2tool: {
@@ -287,7 +316,7 @@ export function getToolsByCategory(): ToolsCategory[] {
   })
 
   // Define preferred order, with Text_Manipulation first
-  const order = ['Development', 'Converters', 'ID_Generators', 'Encryption_Tools', 'Security_Tools', 'pki', 'Image_Videos'];
+  const order = ['Development', 'Converters', 'ID_Generators', 'Encryption_Tools', 'Security_Tools', 'pki', 'Document_Tools', 'Image_Videos'];
 
   return Object.entries(categories)
     .sort(([nameA], [nameB]) => {
@@ -308,7 +337,6 @@ export function getToolsByCategory(): ToolsCategory[] {
     }))
 }
 
-// 根据路径获取工具
 export function getToolByPath(path: string): Tool | undefined {
-  return Object.values(toolsData).find((tool) => tool.path === path)
+  return Object.values(toolsData).find(tool => tool.path === path)
 }

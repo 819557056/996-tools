@@ -251,7 +251,6 @@ export function useCodeGenerator() {
   // Protobuf 生成
   function generateProtobuf(obj: any, rootName: string = 'RootObject'): string {
     const messages: Record<string, string> = {}
-    let messageCounter = 0
 
     function getProtoType(value: any, key: string, parentName: string): string {
       if (value === null) return 'string'

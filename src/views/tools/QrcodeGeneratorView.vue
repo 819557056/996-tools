@@ -37,7 +37,7 @@
                 <BaseInput
                   v-model="content.url"
                   placeholder="https://www.example.com"
-                  :error="content.url && !isValidUrl"
+                  :error="!!content.url && !isValidUrl"
                 />
                 <p v-if="content.url && !isValidUrl" class="text-xs text-destructive">
                   请输入有效的网址，需包含 http:// 或 https://
@@ -51,7 +51,7 @@
                 <BaseTextarea
                   v-model="content.text"
                   placeholder="请输入要生成二维码的文本内容"
-                  rows="4"
+                  :rows="4"
                   class="resize-none"
                 />
               </div>
@@ -298,15 +298,13 @@
 import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import QRCodeStyling from 'qr-code-styling'
 import { 
-  Download, 
-  RotateCcw, 
-  Link, 
+  Download,
+  Link,
   Type, 
   Wifi, 
   Settings2, 
   Upload, 
-  X, 
-  Image as ImageIcon 
+  X,
 } from 'lucide-vue-next'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'

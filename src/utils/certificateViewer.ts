@@ -775,7 +775,7 @@ function extractCertificateInfo(cert: forge.pki.Certificate, _asn1?: forge.asn1.
         // 如果解码失败，保持原值
       }
 
-      result[shortName] = value;
+      if (shortName) result[shortName] = typeof value === 'string' ? value : String(value ?? '');
     });
     return result;
   };

@@ -32,6 +32,7 @@ sidebar:
   lightMode: 'Light mode'
   darkMode: 'Dark mode'
   categories:
+    Document_Tools: 'Electronic Signatures'
     Encryption_Tools: 'Encryption Tools'
     Security_Tools: 'Security Tools'
     Text_Manipulation: 'Text Manipulation'
@@ -44,6 +45,42 @@ sidebar:
     encoding-manage: 'encoding-manage'
 
 tools:
+  csrCreate:
+    title: Create CSR
+    description: Generate keys and PKCS#10 certificate requests locally
+  csrParse:
+    title: Inspect CSR
+    description: Inspect subjects, keys, extensions and CSR signatures
+  pkcs12Create:
+    title: PFX / PKCS#12
+    description: Package a key and certificate chain in a password-protected PFX / P12
+  selfSignedCertificate:
+    title: Self-signed certificate
+    description: Create RSA, ECDSA or SM2 self-signed certificates in the browser
+  certificateChain:
+    title: Certificate chain validation
+    description: Check signatures, validity, CA constraints and explicit trust anchors offline
+  certificateVerify:
+    title: Certificate signature verification
+    description: Verify certificate signatures or data signatures using certificate keys
+  certificateEncrypt:
+    title: Certificate encryption
+    description: Encrypt using RSA / SM2 certificate keys and decrypt using private keys
+  certificateEnvelope:
+    title: Certificate digital envelope
+    description: Create and open CMS digital envelopes with recipient certificates
+  pdfVerify:
+    title: "Local PDF verification"
+    description: "Check PDF signatures, digests, certificates and byte coverage offline"
+  offlineRevocation:
+    title: "Offline OCSP / CRL"
+    description: "Create OCSP requests and test responses; verify OCSP and CRLs offline"
+  fileDigest:
+    title: "File digest"
+    description: "Compute MD5, SHA-1, SHA-256 and SM3 locally in chunks"
+  oidExplorer:
+    title: "OID explorer"
+    description: "Look up identifiers, names, categories and parent nodes"
   categories:
     encoder-decoder: 'Encoder/Decoder'
     generator: 'Generator'
@@ -367,3 +404,36 @@ common:
   placeholder: 'Please enter...'
   favorite: 'Add to favorites'
   unfavorite: 'Remove from favorites'
+
+cryptoOutput:
+  formatExport: 'Format and download'
+  structure: 'Key structure'
+  rawKey: 'Raw key'
+  encoding: 'Display encoding'
+  wrapping: 'Line wrapping'
+  noWrap: 'No wrapping'
+  columns: '{count} characters per line'
+  lineEnding: 'Line endings'
+  headers: 'Include BEGIN/END headers'
+  uppercase: 'Uppercase Hex'
+  customHeader: '“{label}” is a tool-specific wrapper for raw bytes, not a standard key PEM.'
+  copy: 'Copy displayed format'
+  download: 'Download displayed format'
+  copied: 'Displayed content copied'
+  copyFailed: 'Copy failed'
+  invalid: 'Cannot convert the current data'
+  inputEncoding: 'Input encoding'
+  auto: 'Auto (Hex-only characters are treated as Hex)'
+
+localTools:
+  document: "Document file"
+  cancel: "Cancel"
+  failed: "Operation failed"
+  localDigest: "Computed locally in a browser worker without uploading. MD5 and SHA-1 are for compatibility checks."
+  startDigest: "Calculate digests"
+  local: "Local processing"
+  searchOid: "Search OID, name or description"
+  allCategories: "All categories"
+  oidParent: "Known parent"
+  oidMissing: "No exact OID found. Refer to the known parent."
+  empty: "No results"

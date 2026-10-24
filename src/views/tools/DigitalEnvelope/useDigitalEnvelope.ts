@@ -1,4 +1,5 @@
 import { ref } from 'vue';
+import { materialToHex, type InputEncoding } from '@/utils/crypto/material-format';
 import { sm2, sm4 } from 'sm-crypto';
 import forge from 'node-forge';
 
@@ -21,6 +22,7 @@ export default function useDigitalEnvelope() {
   // 解数字信封相关状态
   const envelopeDecryptPrivateKey = ref('');
   const envelopeDecryptInput = ref('');
+  const envelopeEncoding = ref<InputEncoding>('auto');
   const envelopeDecryptResult = ref<{ sessionKey: string; decryptedData: string } | null>(null);
 
   function generateRandomHex(length: number) {
@@ -36,7 +38,7 @@ export default function useDigitalEnvelope() {
 
       // 1. Generate Session Key (SM4 Key - 16 bytes / 32 hex chars)
       const sessionKey = generateRandomHex(32);
-      
+
       // 2. Encrypt Data with Session Key using SM4-CBC (GM/T 0010 requires CBC usually)
       const iv = generateRandomHex(32); // 16 bytes IV
       const encryptedData = sm4.encrypt(envelopeData.value, sessionKey, { mode: 'cbc', iv }); // Returns hex string
@@ -47,9 +49,9 @@ export default function useDigitalEnvelope() {
       // 4. Construct GM/T 0010 EnvelopedData ASN.1 Structure
       // KeyTransRecipientInfo
       // EnvelopedData
-      
+
       const asn1 = forge.asn1;
-      
+
       // We use SubjectKeyIdentifier for RecipientIdentifier as we don't have Issuer/Serial
       // SKI is usually Hash(PublicKey). sm-crypto keys are 04+X+Y.
       // We can use a dummy hash or real SHA1 hash of the public key bytes.
@@ -60,7 +62,7 @@ export default function useDigitalEnvelope() {
         asn1.create(asn1.Class.UNIVERSAL, asn1.Type.SEQUENCE, true, [
           asn1.create(asn1.Class.UNIVERSAL, asn1.Type.INTEGER, false, forge.util.hexToBytes('02')), // Version 2 for SKI
           // RecipientIdentifier -> [0] SubjectKeyIdentifier
-          asn1.create(asn1.Class.CONTEXT_SPECIFIC, 0, false, ski), 
+          asn1.create(asn1.Class.CONTEXT_SPECIFIC, 0, false, ski),
           // KeyEncryptionAlgorithmIdentifier (SM2)
           asn1.create(asn1.Class.UNIVERSAL, asn1.Type.SEQUENCE, true, [
             asn1.create(asn1.Class.UNIVERSAL, asn1.Type.OID, false, forge.asn1.oidToDer(OID.sm2).getBytes()),
@@ -114,36 +116,46 @@ export default function useDigitalEnvelope() {
     }
   }
 
+  function children(node: forge.asn1.Asn1): forge.asn1.Asn1[] {
+    if (!Array.isArray(node?.value)) throw new Error('Invalid envelope structure');
+    return node.value;
+  }
+
+  function binaryValue(node: forge.asn1.Asn1): string {
+    if (typeof node?.value !== 'string') throw new Error('Invalid envelope value');
+    return node.value;
+  }
+
   // 解数字信封
   function openEnvelope() {
     try {
       if (!envelopeDecryptInput.value || !envelopeDecryptPrivateKey.value) return;
 
       const asn1 = forge.asn1;
-      // 1. Parse ASN.1 DER (Hex input)
-      const inputBytes = forge.util.hexToBytes(envelopeDecryptInput.value.replace(/\s/g, ''));
+      // 1. Decode display encoding, then parse ASN.1 DER
+      const inputBytes = forge.util.hexToBytes(materialToHex(envelopeDecryptInput.value, envelopeEncoding.value));
       const contentInfo = asn1.fromDer(forge.util.createBuffer(inputBytes));
 
       // 2. Validate ContentType OID (EnvelopedData)
-      const contentType = forge.asn1.derToOid(contentInfo.value[0].value);
+      const contentType = forge.asn1.derToOid(binaryValue(children(contentInfo)[0]));
       if (contentType !== OID.envelopedData) {
         throw new Error('Invalid ContentType: Not a valid GM/T 0010 EnvelopedData');
       }
 
       // EnvelopedData is in [0] EXPLICIT
-      const envelopedData = contentInfo.value[1].value[0];
-      
+      const envelopedData = children(children(contentInfo)[1])[0];
+
       // Structure: Version, RecipientInfos, EncryptedContentInfo
-      const recipientInfos = envelopedData.value[1];
-      const encryptedContentInfo = envelopedData.value[2];
+      const recipientInfos = children(envelopedData)[1];
+      const encryptedContentInfo = children(envelopedData)[2];
 
       // 3. Extract Encrypted Session Key
       // Assuming single recipient KeyTransRecipientInfo for simplicity
       // KeyTransRecipientInfo: Version, RecipientIdentifier, KeyEncryptionAlgorithmIdentifier, EncryptedKey
-      const recipientInfo = recipientInfos.value[0];
+      const recipientInfo = children(recipientInfos)[0];
       // EncryptedKey is the 4th element (index 3) - OCTET STRING
-      const encryptedSessionKeyOctet = recipientInfo.value[3]; 
-      const encryptedSessionKey = forge.util.bytesToHex(encryptedSessionKeyOctet.value);
+      const encryptedSessionKeyOctet = children(recipientInfo)[3];
+      const encryptedSessionKey = forge.util.bytesToHex(binaryValue(encryptedSessionKeyOctet));
 
       // 4. Decrypt Session Key using SM2 Private Key
       // SM2 Decrypt returns hex string
@@ -155,15 +167,15 @@ export default function useDigitalEnvelope() {
       // 5. Extract IV and Encrypted Data
       // EncryptedContentInfo: ContentType, ContentEncryptionAlgorithmIdentifier, EncryptedContent
       // ContentEncryptionAlgorithmIdentifier: Algorithm (OID), Parameters (IV)
-      const contentEncryptionAlgorithm = encryptedContentInfo.value[1];
-      const ivOctet = contentEncryptionAlgorithm.value[1];
-      const iv = forge.util.bytesToHex(ivOctet.value);
+      const contentEncryptionAlgorithm = children(encryptedContentInfo)[1];
+      const ivOctet = children(contentEncryptionAlgorithm)[1];
+      const iv = forge.util.bytesToHex(binaryValue(ivOctet));
 
       // EncryptedContent is [0] IMPLICIT OCTET STRING
       // In forge, when implicit tagging is parsed without schema, it might appear as Context(0)
       // value[2] is the encrypted content
-      const encryptedContentContext = encryptedContentInfo.value[2];
-      const encryptedData = forge.util.bytesToHex(encryptedContentContext.value);
+      const encryptedContentContext = children(encryptedContentInfo)[2];
+      const encryptedData = forge.util.bytesToHex(binaryValue(encryptedContentContext));
 
       // 6. Decrypt Data using SM4-CBC
       const decryptedData = sm4.decrypt(encryptedData, sessionKey, { mode: 'cbc', iv });
@@ -186,6 +198,7 @@ export default function useDigitalEnvelope() {
     generateEnvelope,
     envelopeDecryptPrivateKey,
     envelopeDecryptInput,
+    envelopeEncoding,
     envelopeDecryptResult,
     openEnvelope,
   };

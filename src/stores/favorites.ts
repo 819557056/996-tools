@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { toolsData } from '@/lib/tools-data'
 
 export const useFavoritesStore = defineStore('favorites', () => {
   const favorites = ref<Set<string>>(new Set())
@@ -9,7 +10,11 @@ export const useFavoritesStore = defineStore('favorites', () => {
   if (stored) {
     try {
       const parsed = JSON.parse(stored)
-      favorites.value = new Set(parsed)
+      if (!Array.isArray(parsed)) throw new Error('Invalid favorites format')
+      favorites.value = new Set(parsed.filter((key): key is string => typeof key === 'string')
+        .map(key => key === 'pkiWorkbench' ? 'csrCreate' : key === 'pdfSeal' ? 'pdfVerify' : key)
+        .filter(key => Object.prototype.hasOwnProperty.call(toolsData, key)))
+      localStorage.setItem('favorites', JSON.stringify([...favorites.value]))
     } catch (e) {
       console.error('Failed to load favorites:', e)
     }

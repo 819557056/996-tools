@@ -20,7 +20,7 @@ interface Props {
   showBreadcrumb?: boolean
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   showBreadcrumb: true
 })
 
@@ -60,4 +60,6 @@ const breadcrumbItems = computed(() => {
   return items
 })
 </script>
+
+
 

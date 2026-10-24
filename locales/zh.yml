@@ -32,6 +32,7 @@ sidebar:
   lightMode: '浅色模式'
   darkMode: '深色模式'
   categories:
+    Document_Tools: '电子签章'
     Encryption_Tools: '加密工具'
     Security_Tools: '安全工具'
     Text_Manipulation: '文本处理'
@@ -44,6 +45,42 @@ sidebar:
     encoding-manage: 'encoding-manage'
 
 tools:
+  csrCreate:
+    title: CSR 制作
+    description: 本地生成密钥和 PKCS#10 证书申请
+  csrParse:
+    title: CSR 解析
+    description: 解析申请主体、公钥、扩展并验证申请签名
+  pkcs12Create:
+    title: PFX / PKCS#12
+    description: 将私钥和证书链封装为带口令的 PFX / P12 文件
+  selfSignedCertificate:
+    title: 自签证书
+    description: 在浏览器生成 RSA、ECDSA 或 SM2 自签证书
+  certificateChain:
+    title: 证书链验证
+    description: 离线检查签名、有效期、CA 约束及指定信任根
+  certificateVerify:
+    title: 证书验签
+    description: 验证证书签名，或使用证书公钥验证数据签名
+  certificateEncrypt:
+    title: 证书加密
+    description: 使用 RSA / SM2 证书公钥加密，使用对应私钥解密
+  certificateEnvelope:
+    title: 证书数字信封
+    description: 使用接收者证书制作和解开 CMS 数字信封
+  pdfVerify:
+    title: "PDF 本地验签"
+    description: "离线检查 PDF 签名、摘要、证书及签名覆盖范围"
+  offlineRevocation:
+    title: "OCSP / CRL 离线工具"
+    description: "生成 OCSP 请求和测试响应，离线校验响应及 CRL"
+  fileDigest:
+    title: "文件摘要"
+    description: "本地分块计算 MD5、SHA-1、SHA-256 和 SM3"
+  oidExplorer:
+    title: "OID 查询"
+    description: "按 OID、名称、分类查找并查看上级节点"
   categories:
     encoder-decoder: '编码/解码'
     generator: '生成器'
@@ -367,3 +404,36 @@ common:
   placeholder: '请输入...'
   favorite: '添加到收藏'
   unfavorite: '取消收藏'
+
+cryptoOutput:
+  formatExport: '格式转换与下载'
+  structure: '密钥结构'
+  rawKey: '原始密钥'
+  encoding: '显示编码'
+  wrapping: '换行'
+  noWrap: '不换行'
+  columns: '每行 {count} 字符'
+  lineEnding: '换行符'
+  headers: '显示 BEGIN/END 头尾'
+  uppercase: '大写 Hex'
+  customHeader: '“{label}” 是原始数据的工具封装头尾，不是标准密钥 PEM。'
+  copy: '复制当前格式'
+  download: '下载当前格式'
+  copied: '已复制当前显示内容'
+  copyFailed: '复制失败'
+  invalid: '无法转换当前数据'
+  inputEncoding: '输入编码'
+  auto: '自动识别（纯 Hex 字符优先按 Hex）'
+
+localTools:
+  document: "文档文件"
+  cancel: "取消"
+  failed: "操作失败"
+  localDigest: "全部在浏览器 Worker 中分块计算，不上传文件。MD5 和 SHA-1 仅用于兼容校验。"
+  startDigest: "计算摘要"
+  local: "本地处理"
+  searchOid: "搜索 OID、名称或说明"
+  allCategories: "全部分类"
+  oidParent: "已知上级节点"
+  oidMissing: "未找到精确 OID，可参考上级节点。"
+  empty: "没有结果"

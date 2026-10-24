@@ -69,13 +69,13 @@
                       </div>
                       <div class="flex-1 overflow-hidden">
                         <div class="flex items-center gap-2">
-                          <div class="font-medium truncate">{{ tool.label }}</div>
+                          <div class="font-medium truncate">{{ t(`${tool.i18nKey}.title`, tool.label) }}</div>
                           <Badge v-if="tool.isNew" variant="secondary" class="text-xs">
                             {{ t('sidebar.newBadge') }}
                           </Badge>
                         </div>
                         <div class="text-sm text-muted-foreground truncate">
-                          {{ tool.description }}
+                          {{ t(`${tool.i18nKey}.description`, tool.description) }}
                         </div>
                       </div>
                       <div class="flex items-center gap-1">
@@ -158,6 +158,7 @@ const filteredTools = computed(() => {
   return Object.values(toolsData).filter((tool) => {
     return (
       tool.label.toLowerCase().includes(query) ||
+      t(`${tool.i18nKey}.title`, tool.label).toLowerCase().includes(query) ||
       tool.description.toLowerCase().includes(query) ||
       tool.badges.some(badge => badge.toLowerCase().includes(query)) ||
       tool.category.toLowerCase().includes(query)

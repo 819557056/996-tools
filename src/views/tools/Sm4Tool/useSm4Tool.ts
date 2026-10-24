@@ -1,4 +1,5 @@
 import { ref, computed } from 'vue';
+import { materialToHex, type InputEncoding } from '@/utils/crypto/material-format';
 import { sm4 } from 'sm-crypto';
 
 export default function useSm4Tool() {
@@ -29,6 +30,7 @@ export default function useSm4Tool() {
 
   // 解密部分
   const decryptInput = ref('');
+  const decryptEncoding = ref<InputEncoding>('auto');
   const decryptKey = ref('0123456789abcdeffedcba9876543210');
   const decryptMode = ref<'ecb' | 'cbc'>('ecb');
   const decryptIv = ref('0123456789abcdeffedcba9876543210');
@@ -45,7 +47,7 @@ export default function useSm4Tool() {
       if (decryptMode.value === 'cbc')
         options.iv = decryptIv.value;
 
-      return sm4.decrypt(decryptInput.value, decryptKey.value, options) as string;
+      return sm4.decrypt(materialToHex(decryptInput.value, decryptEncoding.value), decryptKey.value, options) as string;
     }
     catch (error: unknown) {
       return `错误: ${(error as Error).message}`;
@@ -73,6 +75,7 @@ export default function useSm4Tool() {
   // 复制加密结果到解密输入
   function copyToDecrypt() {
     decryptInput.value = encryptResult.value;
+    decryptEncoding.value = 'hex';
     decryptKey.value = encryptKey.value;
     decryptMode.value = encryptMode.value;
     decryptIv.value = encryptIv.value;
@@ -90,6 +93,7 @@ export default function useSm4Tool() {
     encryptIv,
     encryptResult,
     decryptInput,
+    decryptEncoding,
     decryptKey,
     decryptMode,
     decryptIv,

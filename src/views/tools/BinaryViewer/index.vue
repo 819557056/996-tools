@@ -156,7 +156,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Clipboard, Upload, X, FileText, RefreshCw } from 'lucide-vue-next'
+import { Clipboard, Upload, X, RefreshCw } from 'lucide-vue-next'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'

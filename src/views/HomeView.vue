@@ -149,7 +149,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ArrowDown, Github, Zap, Shield, Code2, ArrowRight } from 'lucide-vue-next'
 import { toolsData } from '@/lib/tools-data'
@@ -160,7 +160,6 @@ import SearchCommand from '@/components/SearchCommand.vue' // Import SearchComma
 const { t, locale } = useI18n()
 
 // Get ALL tools
-const allTools = computed(() => Object.values(toolsData))
 
 // Create a duplicated list for infinite scroll effect (x3 to be safe)
 const displayTools = computed(() => {

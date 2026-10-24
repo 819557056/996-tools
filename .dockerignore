@@ -1,3 +1,10 @@
+tmp
+.git
+/doc/
+/tests/
+**/*.p12
+**/*.pfx
+*.local
 node_modules
 playwright-report
 coverage

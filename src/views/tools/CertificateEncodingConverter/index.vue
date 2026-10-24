@@ -63,7 +63,7 @@
             <div class="space-y-2">
               <label 
                 v-for="format in targetFormats" 
-                :key="format"
+                :key="format ?? 'auto'"
                 class="flex items-center justify-between p-4 rounded-lg border cursor-pointer transition-all hover:shadow-md"
                 :class="targetFormat === format ? 'border-primary bg-primary/5 shadow-sm' : 'border-border hover:border-primary/50'"
               >
