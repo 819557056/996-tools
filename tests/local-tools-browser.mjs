@@ -25,7 +25,7 @@ try {
   await page.goto(origin)
   await main.waitFor()
   const links = await page.locator('aside nav a[href^="/tools/"]').evaluateAll(elements => [...new Set(elements.map(element => element.getAttribute('href')))])
-  assert.equal(links.length, 36)
+  assert.equal(links.length, 37)
   for (const path of ['ofd-seal', 'signature-debugger', 'seal-generator']) {
     assert.equal(links.includes('/tools/' + path), false)
     await page.goto(origin + '/tools/' + path)
@@ -34,7 +34,7 @@ try {
   const favorites = await page.evaluate(() => JSON.parse(localStorage.getItem('favorites')))
   assert.deepEqual(favorites, ['pdfVerify', 'csrCreate', 'fileDigest'])
   assert.equal(await page.getByText(/OFD 签章验签|OFD 签章诊断|电子印章制作|Java 服务处理/).count(), 0)
-  console.log('PASS: 36 local tools; removed entries, legacy redirects and favorite migration')
+  console.log('PASS: 37 local tools; removed entries, legacy redirects and favorite migration')
 
   for (const path of ['pdf-verify', 'offline-revocation', 'self-signed-certificate', 'file-digest', 'oid-explorer']) {
     await goto(path)

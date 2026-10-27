@@ -108,7 +108,7 @@ import { useI18n } from 'vue-i18n'
 import { 
   Sun, Moon, Text, Lock, Binary, Link as LinkIcon, QrCode, IdCard, FileJson, ChevronRight,
   Shield, Image, Fingerprint, Code2, ArrowLeftRight, Folder, Search,
-  GitCompare, Network, FileCode, Table, FileSignature, Hash,
+  GitCompare, Network, FileCode, Table, FileSignature, Hash, BookOpen,
 } from 'lucide-vue-next'
 import { siteConfig } from '@/config/site'
 import { toolsData, getToolsByCategory } from '@/lib/tools-data'
@@ -131,7 +131,7 @@ const { toggleTheme } = themeStore
 
 // 图标映射
 const iconMap: Record<string, any> = {
-  Hash, FileSignature, Shield,
+  Hash, FileSignature, Shield, BookOpen,
   Text,
   Lock,
   Binary,
@@ -149,6 +149,7 @@ const iconMap: Record<string, any> = {
 }
 
 const categoryIcons: Record<string, any> = {
+  Learning_Tools: BookOpen,
   Document_Tools: FileSignature,
   Converters: ArrowLeftRight,
   pki: Shield,

@@ -1,9 +1,53 @@
-import { defineConfig } from 'vite'
+import { defineConfig, type Plugin } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
 import { resolve } from 'node:path'
+import { createReadStream } from 'node:fs'
+import { stat } from 'node:fs/promises'
 import VueI18n from '@intlify/unplugin-vue-i18n/vite'
 import viteCompression from 'vite-plugin-compression'
+
+function localHanziStrokeData(): Plugin {
+  const dataDirectory = resolve(__dirname, 'node_modules/hanzi-writer-data')
+
+  return {
+    name: 'local-hanzi-stroke-data',
+    configureServer(server) {
+      server.middlewares.use('/hanzi-strokes', async (request, response, next) => {
+        if (request.method !== 'GET' && request.method !== 'HEAD') return next()
+
+        let filename: string
+        try {
+          filename = decodeURIComponent(new URL(request.url || '/', 'http://localhost').pathname.slice(1))
+        } catch {
+          response.statusCode = 400
+          response.end()
+          return
+        }
+
+        const character = filename.endsWith('.json') ? filename.slice(0, -5) : ''
+        if (filename !== 'ARPHICPL.TXT' && !(Array.from(character).length === 1 && /\p{Script=Han}/u.test(character))) {
+          response.statusCode = 404
+          response.end()
+          return
+        }
+
+        const file = resolve(dataDirectory, filename)
+        try {
+          const info = await stat(file)
+          if (!info.isFile()) throw new Error('Not a file')
+          response.setHeader('Content-Type', filename.endsWith('.json') ? 'application/json; charset=utf-8' : 'text/plain; charset=utf-8')
+          response.setHeader('Content-Length', info.size)
+          if (request.method === 'HEAD') response.end()
+          else createReadStream(file).pipe(response)
+        } catch {
+          response.statusCode = 404
+          response.end()
+        }
+      })
+    },
+  }
+}
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -29,6 +73,7 @@ export default defineConfig({
       ext: '.br',
       threshold: 1024,
     }),
+    localHanziStrokeData(),
   ],
   define: {
     // 为 @iarna/toml 等 Node.js 包提供浏览器环境兼容性
@@ -40,6 +85,9 @@ export default defineConfig({
     }
   },
   build: {
+    // Copy ordinary public files after compression; the stroke files are copied afterward
+    // so 9,575 small JSON files do not enter the existing compression plugins.
+    copyPublicDir: false,
     // 这个选项就是控制 Minification 的开关
     // 'terser' 是默认值，表示使用 Terser 进行压缩
     // 'esbuild' 是另一个选项，压缩速度更快，但压缩率略低于 Terser

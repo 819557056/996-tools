@@ -120,7 +120,7 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { Search, Text, Lock, Binary, Link, QrCode, IdCard, FileJson } from 'lucide-vue-next'
+import { Search, Text, Lock, Binary, Link, QrCode, IdCard, FileJson, BookOpen } from 'lucide-vue-next'
 import { toolsData, type Tool } from '@/lib/tools-data'
 import Badge from './ui/Badge.vue'
 
@@ -134,6 +134,7 @@ const searchInputRef = ref<HTMLInputElement>()
 
 // 图标映射
 const iconMap: Record<string, any> = {
+  BookOpen,
   Text,
   Lock,
   Binary,

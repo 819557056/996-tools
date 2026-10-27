@@ -22,6 +22,7 @@ export type ToolsCategory = {
 }
 
 export const toolsData: ToolsData = {
+  strokeWorksheet: { key: 'strokeWorksheet', label: '汉字笔画字帖', i18nKey: 'tools.strokeWorksheet', description: '按笔画顺序生成可打印的 A4 汉字练习纸', badges: ['A4', '笔顺', '描红'], category: 'Learning_Tools', path: '/tools/stroke-worksheet', icon: 'BookOpen', isNew: true },
   pdfVerify: {"key":"pdfVerify","label":"PDF 本地验签","i18nKey":"tools.pdfVerify","description":"离线检查 PDF 签名、摘要、证书及签名覆盖范围","badges":["Local"],"category":"Document_Tools","path":"/tools/pdf-verify","icon":"FileSignature","isNew":true},
   offlineRevocation: {"key":"offlineRevocation","label":"OCSP / CRL 离线工具","i18nKey":"tools.offlineRevocation","description":"生成 OCSP 请求和测试响应，离线校验响应及 CRL","badges":["Local"],"category":"pki","path":"/tools/offline-revocation","icon":"Shield","isNew":true},
   ...Object.fromEntries(localPkiTools.map(tool => [tool.key, { key: tool.key, label: tool.title, i18nKey: `tools.${tool.key}`, description: tool.description, badges: ['Local'], category: 'pki', path: `/tools/${tool.mode}`, icon: tool.icon, isNew: true }])),
@@ -316,7 +317,7 @@ export function getToolsByCategory(): ToolsCategory[] {
   })
 
   // Define preferred order, with Text_Manipulation first
-  const order = ['Development', 'Converters', 'ID_Generators', 'Encryption_Tools', 'Security_Tools', 'pki', 'Document_Tools', 'Image_Videos'];
+  const order = ['Learning_Tools', 'Development', 'Converters', 'ID_Generators', 'Encryption_Tools', 'Security_Tools', 'pki', 'Document_Tools', 'Image_Videos'];
 
   return Object.entries(categories)
     .sort(([nameA], [nameB]) => {
