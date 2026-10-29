@@ -46,6 +46,9 @@ sidebar:
     encoding-manage: 'encoding-manage'
 
 tools:
+  sslCertificate:
+    title: 'SSL 证书生成'
+    description: '创建测试根 CA，为本地开发与内网服务签发 HTTPS 证书。'
   strokeWorksheet:
     title: '汉字笔画字帖'
     description: '输入汉字，生成逐笔演示、描红和练习格；按 A4 原尺寸打印。'
@@ -355,8 +358,8 @@ tools:
       usageItem4: '文件下载：转换结果可以下载为文件，支持自定义扩展名'
 
   certificate-parser:
-    title: '证书解析'
-    description: '证书ASN1编码解析'
+    title: 'ASN.1 解析'
+    description: '查看证书、密钥与消息的 ASN.1 结构和原始字节。'
     input: '输入'
     output: '输出'
     action: '执行'

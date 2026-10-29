@@ -51,6 +51,9 @@ function localHanziStrokeData(): Plugin {
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  // Prebundle the SSL Worker's dependencies before the first generation, so
+  // Vite does not discover them mid-operation and reload the current page.
+  optimizeDeps: { include: ['pkijs', 'asn1js', 'sm-crypto', 'ipaddr.js', 'jsbn', '@lapo/asn1js', '@lapo/asn1js/base64.js', '@lapo/asn1js/hex.js', '@lapo/asn1js/defs.js'] },
   plugins: [
     vue(),
     VueI18n({

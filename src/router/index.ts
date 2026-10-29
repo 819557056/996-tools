@@ -10,6 +10,7 @@ const router = createRouter({
       path: '/',
       component: DashboardLayout,
       children: [
+        { path: '/tools/ssl-certificate', name: 'ssl-certificate', component: () => import('../views/tools/SslCertificate/index.vue') },
         { path: '/tools/stroke-worksheet', name: 'stroke-worksheet', component: () => import('../views/tools/StrokeWorksheet/index.vue') },
         { path: '/tools/pdf-verify', name: 'pdf-verify', component: () => import('../views/tools/PdfVerify/index.vue') },
         { path: '/tools/pdf-seal', name: 'pdf-seal', redirect: '/tools/pdf-verify' },

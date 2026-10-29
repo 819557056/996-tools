@@ -22,6 +22,7 @@ export type ToolsCategory = {
 }
 
 export const toolsData: ToolsData = {
+  sslCertificate: { key: 'sslCertificate', label: 'SSL 证书生成', i18nKey: 'tools.sslCertificate', description: '在浏览器中创建 RSA / SM2 测试根 CA，签发 HTTPS 证书', badges: ['本地生成', 'RSA', 'SM2'], category: 'pki', path: '/tools/ssl-certificate', icon: 'Shield', isNew: true },
   strokeWorksheet: { key: 'strokeWorksheet', label: '汉字笔画字帖', i18nKey: 'tools.strokeWorksheet', description: '按笔画顺序生成可打印的 A4 汉字练习纸', badges: ['A4', '笔顺', '描红'], category: 'Learning_Tools', path: '/tools/stroke-worksheet', icon: 'BookOpen', isNew: true },
   pdfVerify: {"key":"pdfVerify","label":"PDF 本地验签","i18nKey":"tools.pdfVerify","description":"离线检查 PDF 签名、摘要、证书及签名覆盖范围","badges":["Local"],"category":"Document_Tools","path":"/tools/pdf-verify","icon":"FileSignature","isNew":true},
   offlineRevocation: {"key":"offlineRevocation","label":"OCSP / CRL 离线工具","i18nKey":"tools.offlineRevocation","description":"生成 OCSP 请求和测试响应，离线校验响应及 CRL","badges":["Local"],"category":"pki","path":"/tools/offline-revocation","icon":"Shield","isNew":true},
@@ -235,10 +236,10 @@ export const toolsData: ToolsData = {
 
   certificateParser: {
     key: "certificateParser",
-    label: "证书解析",
+    label: "ASN.1 解析",
     i18nKey: "tools.certificate-parser",
-    description: "证书ASN1编码解析",
-    badges: ["Certificate-parser"],
+    description: "查看 ASN.1 结构、节点详情与十六进制数据",
+    badges: ["DER / BER", "ASN.1"],
     category: "pki",
     path: "/tools/certificate-parser",
     icon: "PKI",

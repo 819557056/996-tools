@@ -46,6 +46,9 @@ sidebar:
     encoding-manage: 'encoding-manage'
 
 tools:
+  sslCertificate:
+    title: 'SSL certificate generator'
+    description: 'Create a test root CA and issue HTTPS certificates locally in your browser.'
   strokeWorksheet:
     title: 'Chinese stroke worksheet'
     description: 'Enter Chinese characters to make stroke-order, tracing, and practice grids on A4 paper.'
@@ -355,8 +358,8 @@ tools:
       usageItem4: 'File download: Conversion results can be downloaded as files with custom extensions'
 
   certificate-parser:
-    title: '证书解析'
-    description: '证书ASN1编码解析'
+    title: 'ASN.1 decoder'
+    description: 'Explore the ASN.1 structure and bytes of certificates, keys, and messages.'
     input: 'Input'
     output: 'Output'
     action: 'Execute'
